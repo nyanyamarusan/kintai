@@ -1,0 +1,11 @@
+.bg-black {
+    background-color: #000000;
+}
+
+.font {
+    font-family: "Inter";
+}
+
+.text {
+    font-size: clamp(15px, 1.58vw, 28px);
+}

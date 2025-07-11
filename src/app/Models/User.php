@@ -61,4 +61,21 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === self::ROLE_STAFF;
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function requests()
+    {
+        return $this->hasMany(Request::class);
+    }
+
+    public function getIsOffWorkAttribute()
+    {
+        $today = now()->toDateString();
+        $record = $this->attendances()->whereDate('date', $today)->first();
+        return $record && $record->off_work_time !== null;
+    }
 }
