@@ -17,20 +17,21 @@
 </head>
 
 <body>
-    <header class="bg-black container">
-        <div class="text-white font d-flex justify-content-between align-items-center">
+    <header class="bg-black w-100">
+        <div class="text-white inter d-flex justify-content-between align-items-center
+                    fw-normal py-1p px-2p">
             <div>
-            @if (Auth::user()->role === 'admin')
-            <a href="/admin/attendance/list">
-                <img class="w-100" src="{{ asset('logo.svg') }}">
+            @if (Auth::check() && Auth::user()->role === 'admin')
+            <a href="/admin/attendance/list" class="text-decoration-none">
+                <img class="img-fluid logo" src="{{ asset('logo.svg') }}">
             </a>
             @else
-            <a href="/attendance">
-                <img class="w-100" src="{{ asset('logo.svg') }}">
+            <a href="/attendance" class="text-decoration-none">
+                <img class="img-fluid logo" src="{{ asset('logo.svg') }}">
             </a>
             @endif
             </div>
-            @if (!request()->is('register') && !request()->is('login') && !request()->is('verify-email') && !request()->is('admin/login'))
+            @if (!request()->is('register') && !request()->is('login') && !request()->is('email/verify') && !request()->is('admin/login'))
             <nav class="navbar">
                 <ul class="navbar-nav ms-auto">
                     @if (Auth::user()->role === 'admin')
@@ -48,14 +49,12 @@
                         <li class="nav-list"><a href="/stamp_correction_request/list" class="nav-link text-decoration-none">申請一覧</a></li>
                         @endif
                     @endif
-                    @if (Auth::check())
                     <li>
                         <form action="/logout" method="POST">
                             @csrf
                             <button type="submit" class="nav-link btn btn-link text-decoration-none p-0 m-0">ログアウト</button>
                         </form>
                     </li>
-                    @endif
                 </ul>
             </nav>
             @endif

@@ -32,12 +32,28 @@ class AuthController extends Controller
 
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
-                if ($user->role === 'admin') {
-                    return redirect('/admin/attendance/list');
-                } else {
+                if ($user->role === 'staff') {
                     return redirect('/attendance');
                 }
+
+                Auth::logout();
+                return redirect('/login');
             }
+    }
+
+    public function adminLogin(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if ($user->role === 'admin') {
+                return redirect('/admin/attendance/list');
+            }
+
+            Auth::logout();
+            return redirect('/admin/login');
+        }
     }
 
     public function logout(Request $request)
@@ -62,5 +78,10 @@ class AuthController extends Controller
         $request->fulfill();
 
         return redirect('/attendance');
+    }
+
+    public function email()
+    {
+        return view('auth.verify-email');
     }
 }
