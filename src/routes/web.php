@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
@@ -13,6 +14,10 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     ->middleware(['auth', 'signed'])
     ->name('verification.verify');
+Route::get('/attendance', [StaffController::class, 'attendance']);
+
+
+
 
 Route::get('/email/verify', [AuthController::class, 'email']);
     
