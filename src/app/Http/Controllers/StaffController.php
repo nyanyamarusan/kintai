@@ -58,7 +58,7 @@ class StaffController extends Controller
                 break;
 
             case 'clock_out':
-                if ($attendance) {
+                if ($attendance && !$attendance->clock_out) {
                     $attendance->update([
                         'clock_out' => now()->format('H:i'),
                     ]);

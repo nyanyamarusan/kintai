@@ -26,7 +26,7 @@
         </form>
         @endif
 
-        @if ($status === '出勤中')
+        @if ($status === '出勤中' && !$attendance->clock_out)
         <div class="d-flex justify-content-center w-100">
             <form action="/attendance/list" method="post" class="w-50">
                 @csrf
