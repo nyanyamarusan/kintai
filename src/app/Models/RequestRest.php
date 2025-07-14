@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Request;
 use Illuminate\Database\Eloquent\Model;
 
 class RequestRest extends Model

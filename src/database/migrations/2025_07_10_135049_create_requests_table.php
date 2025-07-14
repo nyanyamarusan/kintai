@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('request_at');
             $table->time('new_clock_in');
             $table->time('new_clock_out');
-            $table->string('status')->default('pending');
+            $table->boolean('approved')->default(false);
             $table->text('reason');
             $table->timestamps();
         });

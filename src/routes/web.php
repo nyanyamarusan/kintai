@@ -15,6 +15,8 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     ->middleware(['auth', 'signed'])
     ->name('verification.verify');
 Route::get('/attendance', [StaffController::class, 'attendance']);
+Route::post('/attendance/list', [StaffController::class, 'store']);
+Route::get('/attendance/list', [StaffController::class, 'index']);
 
 
 

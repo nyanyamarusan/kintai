@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Models;
+
+use App\Models\Attendance;
+use App\Models\Request;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -70,12 +73,5 @@ class User extends Authenticatable implements MustVerifyEmail
     public function requests()
     {
         return $this->hasMany(Request::class);
-    }
-
-    public function getIsOffWorkAttribute()
-    {
-        $today = now()->toDateString();
-        $record = $this->attendances()->whereDate('date', $today)->first();
-        return $record && $record->off_work_time !== null;
     }
 }

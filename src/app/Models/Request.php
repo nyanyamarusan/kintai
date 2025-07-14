@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Attendance;
+use App\Models\RequestRest;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Request extends Model
@@ -13,12 +16,13 @@ class Request extends Model
         'request_at',
         'new_clock_in',
         'new_clock_out',
-        'status',
+        'approved',
         'reason',
     ];
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_APPROVED = 'approved';
+    protected $casts = [
+        'approved' => 'boolean',
+    ];
 
     public function user()
     {
@@ -33,15 +37,5 @@ class Request extends Model
     public function requestRests()
     {
         return $this->hasMany(RequestRest::class);
-    }
-
-    public function scopePending($query)
-    {
-        return $query->where('status', self::STATUS_PENDING);
-    }
-
-    public function scopeApproved($query)
-    {
-        return $query->where('status', self::STATUS_APPROVED);
     }
 }

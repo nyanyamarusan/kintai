@@ -10,6 +10,23 @@
     font-size: clamp(24px, 2.38vw, 42px);
 }
 
+.status {
+    font-size: clamp(14px, 1.19vw, 24px);
+}
+
+.attendance-btn-text {
+    font-size: clamp(20px, 2.11vw, 36px);
+    font-weight: 700;
+}
+
+.date {
+    font-size: clamp(26px, 2.65vw, 50px);
+}
+
+.time {
+    font-size: clamp(50px, 5.3vw, 100px);
+}
+
 .p-1p {
     padding: 1%;
 }
@@ -19,9 +36,24 @@
     padding-right: 2%;
 }
 
+.px-5p {
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
 .py-1p {
     padding-top: 1%;
     padding-bottom: 1%;
+}
+
+.py-2p {
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+.py-4p {
+    padding-top: 4%;
+    padding-bottom: 4%;
 }
 
 .pt-8p {
@@ -34,6 +66,10 @@
 
 .mt-5p {
     margin-top: 5%;
+}
+
+.mt-8p {
+    margin-top: 8%;
 }
 
 .mt-10p {
@@ -64,6 +100,10 @@
     height: clamp(28px, 4vw, 68px);
 }
 
+.m-h-100vh {
+    min-height: 100vh;
+}
+
 .rounded-10 {
     border-radius: 10px;
 }
@@ -76,6 +116,14 @@
     background-color: #C8C8C8;
 }
 
+.bg-f0eff2 {
+    background-color: #f0eff2;
+}
+
 .text-gray-69 {
     color: #696969;
+}
+
+.rounded-20 {
+    border-radius: 20px;
 }
