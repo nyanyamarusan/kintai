@@ -39,18 +39,14 @@
                         <li class="nav-item"><a href="/admin/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a></li>
                         <li class="nav-item"><a href="/admin/staff/list" class="nav-link text-decoration-none text-white">スタッフ一覧</a></li>
                         <li class="nav-item"><a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請一覧</a></li>
+                        @elseif (request()->is('attendance') && $attendance?->clock_out)
+                        <li class="nav-item"><a href="/attendance/list" class="nav-link text-decoration-none text-white">今月の出勤一覧</a></li>
+                        <li class="nav-item"><a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請一覧</a></li>
                         @else
                         <li class="nav-item"><a href="/attendance" class="nav-link text-decoration-none text-white">勤怠</a></li>
                         <li class="nav-item"><a href="/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a></li>
                         <li class="nav-item"><a {{--href="/attendance/{{ $user->id }}" --}}class="nav-link text-decoration-none text-white">申請</a></li>
                         @endif
-                        @php
-                        $status = $attendance->status ?? '勤務外';
-                        @endphp
-                        {{--@if (request()->is('attendance') && $status === '退勤済')
-                        <li class="nav-item"><a href="/attendance/list" class="nav-link text-decoration-none text-white">今月の出勤一覧</a></li>
-                        <li class="nav-item"><a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請一覧</a></li>
-                        @endif--}}
                         <li>
                             <form action="/logout" method="POST">
                                 @csrf

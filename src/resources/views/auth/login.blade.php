@@ -21,7 +21,7 @@
                 <p class="text-danger">{{ $message }}</p>
             @enderror
         </div>
-        <button type="submit" class="btn btn-text bg-black rounded-2 w-100 mt-10p h-4vw">ログインする</button>
+        <button type="submit" class="btn text-1_72vw text-white fw-bold bg-black rounded-2 w-100 mt-10p h-4vw">ログインする</button>
     </form>
     <div class="text-center mt-2p">
         <a href="/register" class="link text-decoration-none fw-normal">会員登録はこちら</a>

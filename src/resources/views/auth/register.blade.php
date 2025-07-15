@@ -39,7 +39,7 @@
                 @endif
             @enderror
         </div>
-        <button type="submit" class="btn btn-text bg-black rounded-2 w-100 mt-10p h-4vw">登録する</button>
+        <button type="submit" class="btn text-1_72vw text-white fw-bold bg-black rounded-2 w-100 mt-10p h-4vw">登録する</button>
     </form>
     <div class="text-center mt-2p">
         <a href="/login" class="link text-decoration-none fw-normal">ログインはこちら</a>

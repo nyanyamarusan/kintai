@@ -36,9 +36,9 @@
     padding-right: 2%;
 }
 
-.px-5p {
-    padding-left: 5%;
-    padding-right: 5%;
+.px-3p {
+    padding-left: 3%;
+    padding-right: 3%;
 }
 
 .py-1p {
@@ -56,8 +56,16 @@
     padding-bottom: 4%;
 }
 
+.pt-5p {
+    padding-top: 5%;
+}
+
 .pt-8p {
     padding-top: 8%;
+}
+
+.pl-2p {
+    padding-left: 2%;
 }
 
 .mt-2p {
@@ -68,10 +76,6 @@
     margin-top: 5%;
 }
 
-.mt-8p {
-    margin-top: 8%;
-}
-
 .mt-10p {
     margin-top: 10%;
 }
@@ -80,16 +84,22 @@
     margin-top: 15%;
 }
 
+.m-10p {
+    margin: 10%;
+}
+
 .link {
     color: #0073CC;
     font-size: clamp(12px, 1.32vw, 24px);
     background-color: transparent;
 }
 
-.btn-text {
+.text-1_72vw {
     font-size: clamp(12px, 1.72vw, 30px);
-    color: #FFFFFF;
-    font-weight: 700;
+}
+
+.text-1_05vw {
+    font-size: clamp(12px, 1.05vw, 30px);
 }
 
 .h-2_98vw {
@@ -124,6 +134,34 @@
     color: #696969;
 }
 
+.text-73 {
+    color: #737373;
+}
+
 .rounded-20 {
     border-radius: 20px;
+}
+
+.ls-15 {
+    letter-spacing: 0.15em;
+}
+
+.border-left {
+    border-left: 8px solid #000;
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+.opacity-30 {
+    opacity: 0.3;
+}
+
+.table-border {
+    border-bottom: 2px solid #E1E1E1;
+}
+
+.table-fixed {
+    table-layout: fixed;
 }

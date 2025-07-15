@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -66,12 +67,34 @@ class StaffController extends Controller
                 break;
         }
 
-        return redirect('/attendance/list');
+        return redirect()->back();
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('index');
+        // $user = Auth::user();
+        $user = User::find(1);
+    
+        $year = $request->input('year', now()->year);
+        $month = $request->input('month', now()->month);
+    
+        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+    
+        $days = collect();
+        for ($date = $startOfMonth->copy(); $date <= $endOfMonth; $date->addDay()) {
+            $days->push($date->copy());
+        }
+    
+        $attendances = Attendance::with('restTimes')
+            ->where('user_id', $user->id)
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->get()
+            ->keyBy(function ($attendance) {
+                return Carbon::parse($attendance->date)->toDateString();
+            });
+    
+        return view('index', compact('user', 'attendances', 'days', 'year', 'month'));
     }
 
 }
