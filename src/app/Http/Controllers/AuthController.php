@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminLoginRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
@@ -31,29 +32,19 @@ class AuthController extends Controller
             $credentials = $request->only('email', 'password');
 
             if (Auth::attempt($credentials)) {
-                $user = Auth::user();
-                if ($user->role === 'staff') {
-                    return redirect('/attendance');
-                }
-
-                Auth::logout();
-                return redirect('/login');
+                return redirect('/attendance');
             }
+            return redirect('/login');
     }
 
-    public function adminLogin(LoginRequest $request)
+    public function adminLogin(AdminLoginRequest $request)
     {
         $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if ($user->role === 'admin') {
-                return redirect('/admin/attendance/list');
-            }
-
-            Auth::logout();
-            return redirect('/admin/login');
+        if (Auth::attempt($credentials, ['guard' => 'admin'])) {
+            return redirect('/admin/attendance/list');
         }
+        return redirect('/admin/login');
     }
 
     public function logout(Request $request)

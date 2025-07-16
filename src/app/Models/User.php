@@ -47,24 +47,6 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    const ROLE_ADMIN = 'admin';
-    const ROLE_STAFF = 'staff';
-
-    public function isAdmin()
-    {
-        return $this->role === self::ROLE_ADMIN;
-    }
-
-    public function isStaff()
-    {
-        return $this->role === self::ROLE_STAFF;
-    }
-
-    public function mustVerifyEmail()
-    {
-        return $this->role === self::ROLE_STAFF;
-    }
-
     public function attendances()
     {
         return $this->hasMany(Attendance::class);

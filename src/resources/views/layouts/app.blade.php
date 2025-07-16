@@ -21,7 +21,7 @@
         <div class="text-white inter d-flex justify-content-between align-items-center
                 fw-normal p-1p w-100">
             <div class="col-3">
-            @if (Auth::check() && Auth::user()->role === 'admin')
+            @if (Auth::guard('admin')->check())
             <a href="/admin/attendance/list">
                 <img class="w-100" src="{{ asset('logo.svg') }}">
             </a>
@@ -35,17 +35,33 @@
             <nav class="navbar col-4">
                 <div class="container">
                     <ul class="navbar-nav flex-row align-items-center justify-content-between w-100 text">
-                        @if (Auth::check() && $user->role === 'admin')
-                        <li class="nav-item"><a href="/admin/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a></li>
-                        <li class="nav-item"><a href="/admin/staff/list" class="nav-link text-decoration-none text-white">スタッフ一覧</a></li>
-                        <li class="nav-item"><a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請一覧</a></li>
+                        @if (Auth::guard('admin')->check())
+                        <li class="nav-item">
+                            <a href="/admin/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/staff/list" class="nav-link text-decoration-none text-white">スタッフ一覧</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請一覧</a>
+                        </li>
                         @elseif (request()->is('attendance') && $attendance?->clock_out)
-                        <li class="nav-item"><a href="/attendance/list" class="nav-link text-decoration-none text-white">今月の出勤一覧</a></li>
-                        <li class="nav-item"><a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請一覧</a></li>
+                        <li class="nav-item">
+                            <a href="/attendance/list" class="nav-link text-decoration-none text-white">今月の出勤一覧</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請一覧</a>
+                        </li>
                         @else
-                        <li class="nav-item"><a href="/attendance" class="nav-link text-decoration-none text-white">勤怠</a></li>
-                        <li class="nav-item"><a href="/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a></li>
-                        <li class="nav-item"><a {{--href="/attendance/{{ $user->id }}" --}}class="nav-link text-decoration-none text-white">申請</a></li>
+                        <li class="nav-item">
+                            <a href="/attendance" class="nav-link text-decoration-none text-white">勤怠</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a>
+                        </li>
+                        <li class="nav-item">
+                            <a {{--href="/attendance/{{ $user->id }}" --}}class="nav-link text-decoration-none text-white">申請</a>
+                        </li>
                         @endif
                         <li>
                             <form action="/logout" method="POST">

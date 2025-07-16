@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container inter text fw-bold">
-    <h2 class="text-center title pt-8p fw-bold">ログイン</h2>
+    <h2 class="text-center form-title pt-8p fw-bold">ログイン</h2>
     <form action="/admin/login" class="w-50 mx-auto" method="post">
         @csrf
         <div class="mt-10p">
@@ -21,7 +21,9 @@
                 <p class="text-danger">{{ $message }}</p>
             @enderror
         </div>
-        <button type="submit" class="btn text-1_72vw text-white fw-bold bg-black rounded-2 w-100 mt-10p h-4vw">ログインする</button>
+        <button type="submit" class="btn text-1vw72 text-white fw-bold bg-black rounded-2 w-100 mt-10p h-4vw">
+            ログインする
+        </button>
     </form>
     <div class="text-center mt-2p">
         <a href="/register" class="link text-decoration-none fw-normal">会員登録はこちら</a>

@@ -6,8 +6,12 @@
     font-size: clamp(15px, 1.58vw, 28px);
 }
 
-.title {
+.form-title {
     font-size: clamp(24px, 2.38vw, 42px);
+}
+
+.content-title {
+    font-size: clamp(22px, 1.98vw, 40px);
 }
 
 .status {
@@ -20,11 +24,11 @@
 }
 
 .date {
-    font-size: clamp(26px, 2.65vw, 50px);
+    font-size: clamp(26px, 2.65vw, 60px);
 }
 
 .time {
-    font-size: clamp(50px, 5.3vw, 100px);
+    font-size: clamp(50px, 5.3vw, 120px);
 }
 
 .p-1p {
@@ -94,15 +98,15 @@
     background-color: transparent;
 }
 
-.text-1_72vw {
+.text-1vw72 {
     font-size: clamp(12px, 1.72vw, 30px);
 }
 
-.text-1_05vw {
+.text-1vw05 {
     font-size: clamp(12px, 1.05vw, 30px);
 }
 
-.h-2_98vw {
+.h-2vw98 {
     height: clamp(24px, 2.98vw, 60px);
 }
 
@@ -135,6 +139,10 @@
 }
 
 .text-73 {
+    color: #737373;
+}
+
+.table .text-73 {
     color: #737373;
 }
 

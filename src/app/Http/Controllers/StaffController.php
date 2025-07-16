@@ -74,18 +74,18 @@ class StaffController extends Controller
     {
         // $user = Auth::user();
         $user = User::find(1);
-    
+
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
-    
+
         $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
-    
+
         $days = collect();
         for ($date = $startOfMonth->copy(); $date <= $endOfMonth; $date->addDay()) {
             $days->push($date->copy());
         }
-    
+
         $attendances = Attendance::with('restTimes')
             ->where('user_id', $user->id)
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
@@ -93,7 +93,7 @@ class StaffController extends Controller
             ->keyBy(function ($attendance) {
                 return Carbon::parse($attendance->date)->toDateString();
             });
-    
+
         return view('index', compact('user', 'attendances', 'days', 'year', 'month'));
     }
 

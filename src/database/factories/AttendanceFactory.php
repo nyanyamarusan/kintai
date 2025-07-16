@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Attendance;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,16 +21,16 @@ class AttendanceFactory extends Factory
 
     public function definition(): array
     {
-        $in = $this->faker->dateTimeBetween('08:00', '10:00');
+        $in = $this->faker->dateTimeBetween('today 08:00', 'today 10:00');
         $out = (clone $in)->modify('+' . rand(7, 9) . ' hours');
 
         return [
-            'user_id' => null,
-            'date' => $this->faker->date(),
+            'user_id' => User::inRandomOrder()->value('id'),
+            'date' => $in->format('Y-m-d'),
             'clock_in' => $in->format('H:i'),
             'clock_out' => $out->format('H:i'),
-            'break_time' => $this->faker->numberBetween(30, 60),
-            'work_time' => $this->faker->numberBetween(420, 540),
+            'break_time' => 0,
+            'work_time' => 0,
         ];
     }
 }
