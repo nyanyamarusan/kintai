@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Admin;
 use App\Models\Attendance;
-use App\Models\RestTime;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -17,55 +16,41 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory()->count(5)->create();
-        Attendance::factory()->count(10)->create();
-        RestTime::factory()->count(20)->create();
 
-        foreach (Attendance::all() as $attendance) {
-            try {
-                $clockIn = Carbon::createFromFormat('H:i:s', $attendance->clock_in);
-                $clockOut = Carbon::createFromFormat('H:i:s', $attendance->clock_out);
-        
-                if ($clockOut->lessThan($clockIn)) {
-                    $clockOut->addDay();
+        Attendance::factory()->count(10)->create()->each(function ($attendance) {
+            $clockIn = Carbon::parse($attendance->clock_in);
+            $clockOut = Carbon::parse($attendance->clock_out);
+
+            for ($i = 0; $i < rand(1, 3); $i++) {
+                $start = (clone $clockIn)->addMinutes(rand(60, 240));
+                if ($start->greaterThanOrEqualTo($clockOut)) {
+                    break;
                 }
-        
-                $workMinutes = $clockOut->diffInMinutes($clockIn);
-        
-                $totalRest = 0;
-                foreach ($attendance->restTimes as $rest) {
-                    try {
-                        $start = Carbon::createFromFormat('H:i:s', $rest->start_time);
-                        $end = Carbon::createFromFormat('H:i:s', $rest->end_time);
-        
-                        if ($end->lessThan($start)) {
-                            $end->addDay();
-                        }
-        
-                        $restDuration = $end->diffInMinutes($start);
-        
-                        // 念のため負の値は加算しない
-                        if ($restDuration > 0) {
-                            $totalRest += $restDuration;
-                        }
-                    } catch (\Exception $e) {
-                        echo "休憩時間の処理でエラー: {$e->getMessage()}\n";
-                    }
+                $end = (clone $start)->addMinutes(rand(15, 60));
+                if ($end->greaterThan($clockOut)) {
+                    $end = (clone $clockOut)->subMinutes(rand(5, 15));
                 }
-        
-                $actualWork = max($workMinutes - $totalRest, 0);
-        
-                echo "ID: {$attendance->id}, 出勤: {$clockIn->format('H:i')}, 退勤: {$clockOut->format('H:i')} => 勤務時間: {$workMinutes} 分, 休憩合計: {$totalRest} 分, 実労働: {$actualWork} 分\n";
-        
-                $attendance->update([
-                    'break_time' => $totalRest,
-                    'work_time' => $actualWork,
+                if ($end->lessThanOrEqualTo($start)) {
+                    continue;
+                }
+
+                $attendance->restTimes()->create([
+                    'start_time' => $start->format('H:i'),
+                    'end_time' => $end->format('H:i'),
                 ]);
-        
-            } catch (\Exception $e) {
-                echo "勤務時間の処理でエラー: {$e->getMessage()}\n";
             }
-        }
-    
+
+            $attendance->refresh();
+
+            $totalRest = $attendance->total_rest_minutes;
+            $totalWork = $attendance->work_minutes;
+
+            $attendance->update([
+                'total_rest' => $totalRest,
+                'total_work' => $totalWork,
+            ]);
+        });
+
         Admin::factory()->count(2)->create();
     }
 }

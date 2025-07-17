@@ -54,6 +54,9 @@ class StaffController extends Controller
                         $rest->update([
                             'end_time' => now()->format('H:i'),
                         ]);
+                        $attendance->update([
+                            'total_rest' => $attendance->total_rest_minutes,
+                        ]);
                     }
                 }
                 break;
@@ -62,6 +65,7 @@ class StaffController extends Controller
                 if ($attendance && !$attendance->clock_out) {
                     $attendance->update([
                         'clock_out' => now()->format('H:i'),
+                        'total_work' => $attendance->work_minutes,
                     ]);
                 }
                 break;

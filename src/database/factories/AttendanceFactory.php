@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Attendance;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,16 +22,16 @@ class AttendanceFactory extends Factory
 
     public function definition(): array
     {
-        $in = $this->faker->dateTimeBetween('today 08:00', 'today 10:00');
-        $out = (clone $in)->modify('+' . rand(7, 9) . ' hours');
+        $start = Carbon::createFromTime(rand(8, 10), rand(0, 59));
+        $end = (clone $start)->addHours(rand(8, 10));
 
         return [
-            'user_id' => User::inRandomOrder()->value('id'),
-            'date' => $in->format('Y-m-d'),
-            'clock_in' => $in->format('H:i'),
-            'clock_out' => $out->format('H:i'),
-            'break_time' => 0,
-            'work_time' => 0,
+            'user_id' => User::inRandomOrder()->first()->id,
+            'date' => $start->toDateString(),
+            'clock_in' => $start->format('H:i'),
+            'clock_out' => $end->format('H:i'),
+            'total_rest' => 0,
+            'total_work' => 0,
         ];
     }
 }

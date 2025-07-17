@@ -60,10 +60,10 @@ $nextMonth = \Carbon\Carbon::create($year, $month)->addMonth();
                     {{ $attendance?->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '' }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->break_time ? minutesToTime($attendance->break_time) : '' }}
+                    {{ $attendance?->total_rest ? minutesToTime($attendance->total_rest) : '' }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->work_time ? minutesToTime($attendance->work_time) : '' }}
+                    {{ $attendance?->total_work ? minutesToTime($attendance->total_work) : '' }}
                 </td>
                 <td class="px-5">
                     <a href="/attendance/{{ $user->id }}" class="text-decoration-none text-black">詳細</a>
