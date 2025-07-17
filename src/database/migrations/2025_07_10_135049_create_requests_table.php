@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('attendance_id')->constrained()->onDelete('cascade');
-            $table->date('request_at');
             $table->time('new_clock_in');
             $table->time('new_clock_out');
             $table->boolean('approved')->default(false);
