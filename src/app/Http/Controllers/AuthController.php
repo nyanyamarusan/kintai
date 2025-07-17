@@ -29,39 +29,35 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-            $credentials = $request->only('email', 'password');
+        $request->authenticate();
 
-            if (Auth::attempt($credentials)) {
-                return redirect('/attendance');
-            }
-            return redirect('/login');
+        return redirect('/attendance');
     }
 
     public function adminLogin(AdminLoginRequest $request)
     {
-        $credentials = $request->only('email', 'password');
+        $request->authenticate();
 
-        if (Auth::attempt($credentials, ['guard' => 'admin'])) {
-            return redirect('/admin/attendance/list');
-        }
-        return redirect('/admin/login');
+        return redirect('/admin/attendance/list');
     }
 
     public function logout(Request $request)
     {
-        $user = Auth::user();
-        Auth::logout();
+        $redirect = '/login';
+
+        if (Auth::guard('admin')->check()) {
+            Auth::guard('admin')->logout();
+            $redirect = '/admin/login';
+        } elseif (Auth::check()) {
+            Auth::logout();
+        }
 
         if ($request->hasSession()) {
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }
 
-        if ($user && $user->role === 'admin') {
-            return redirect('/admin/login');
-        } else {
-            return redirect('/login');
-        }
+        return redirect($redirect);
     }
 
     public function verify(EmailVerificationRequest $request)

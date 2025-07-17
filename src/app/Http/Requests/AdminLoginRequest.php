@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class LoginRequest extends FormRequest
+class AdminLoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,7 +31,7 @@ class LoginRequest extends FormRequest
 
     public function authenticate()
     {
-        if (!Auth::attempt($this->only('email', 'password'))) {
+        if (!Auth::guard('admin')->attempt($this->only('email', 'password'))) {
             throw ValidationException::withMessages([
                 'email' => 'ログイン情報が登録されていません',
             ]);
