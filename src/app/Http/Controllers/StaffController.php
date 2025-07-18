@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\User;
+use App\Services\IndexDateService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -65,7 +66,7 @@ class StaffController extends Controller
                 if ($attendance && !$attendance->clock_out) {
                     $attendance->update([
                         'clock_out' => now()->format('H:i'),
-                        'total_work' => $attendance->work_minutes,
+                        'total_work' => $attendance->total_work_minutes,
                     ]);
                 }
                 break;
@@ -74,7 +75,7 @@ class StaffController extends Controller
         return redirect()->back();
     }
 
-    public function index(Request $request)
+    public function index(Request $request, IndexDateService $indexDateService)
     {
         // $user = Auth::user();
         $user = User::find(1);
@@ -82,23 +83,32 @@ class StaffController extends Controller
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
 
-        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
-        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $days = $indexDateService->getDaysOfMonth($year, $month);
 
-        $days = collect();
-        for ($date = $startOfMonth->copy(); $date <= $endOfMonth; $date->addDay()) {
-            $days->push($date->copy());
-        }
+        $carbon = Carbon::create($year, $month);
+        $prevMonth = $carbon->copy()->subMonth();
+        $nextMonth = $carbon->copy()->addMonth();
 
         $attendances = Attendance::with('restTimes')
             ->where('user_id', $user->id)
-            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->whereBetween('date', [$days->first()->toDateString(), $days->last()->toDateString()])
             ->get()
             ->keyBy(function ($attendance) {
                 return Carbon::parse($attendance->date)->toDateString();
             });
 
-        return view('index', compact('user', 'attendances', 'days', 'year', 'month'));
+        return view('index', compact('user', 'attendances', 'days', 'year', 'month', 'prevMonth', 'nextMonth'));
+    }
+
+    public function show($id)
+    {
+        //$user = Auth::user();
+        $user = User::find(1);
+        $attendance = Attendance::find($id);
+        $restTimes = $attendance->restTimes()->get();
+        $request = $attendance->request;
+
+        return view('show', compact('attendance', 'user', 'restTimes', 'request'));
     }
 
 }

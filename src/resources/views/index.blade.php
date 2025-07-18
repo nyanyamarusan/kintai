@@ -4,10 +4,6 @@
 <div class="bg-f0eff2 inter m-h-100vh">
 <div class="container pt-5p col-8">
     <h2 class="fw-bold content-title border-left pl-2p">勤怠一覧</h2>
-@php
-$prevMonth = \Carbon\Carbon::create($year, $month)->subMonth();
-$nextMonth = \Carbon\Carbon::create($year, $month)->addMonth();
-@endphp
 <div class="p-2">
     <div class="d-flex justify-content-between align-items-center bg-white rounded-10 py-1p px-2p mt-5p">
         <a class="text-decoration-none col-1 text-1vw05 text-73 ls-15" href="{{ route('index',
@@ -36,15 +32,6 @@ $nextMonth = \Carbon\Carbon::create($year, $month)->addMonth();
             </tr>
         </thead>
         <tbody>
-            @php
-            function minutesToTime($minutes) {
-                if (is_null($minutes)) return '';
-                $hours = floor($minutes / 60);
-                $mins = $minutes % 60;
-                return $hours . ':' . str_pad($mins, 2, '0', STR_PAD_LEFT);
-            }
-            @endphp
-
             @foreach ($days as $day)
             @php
             $attendance = $attendances[$day->toDateString()] ?? null;
@@ -54,16 +41,16 @@ $nextMonth = \Carbon\Carbon::create($year, $month)->addMonth();
                     {{ $day->format('m/d') }}({{ ['日','月','火','水','木','金','土'][$day->dayOfWeek] }})
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '' }}
+                    {{ $attendance?->formattedClockIn }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '' }}
+                    {{ $attendance?->formattedClockOut }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->total_rest ? minutesToTime($attendance->total_rest) : '' }}
+                    {{ $attendance?->formattedTotalRest }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->total_work ? minutesToTime($attendance->total_work) : '' }}
+                    {{ $attendance?->formattedTotalWork }}
                 </td>
                 <td class="px-5">
                     <a href="/attendance/{{ $user->id }}" class="text-decoration-none text-black">詳細</a>

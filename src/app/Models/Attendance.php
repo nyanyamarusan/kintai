@@ -37,9 +37,9 @@ class Attendance extends Model
         return $this->hasMany(RestTime::class);
     }
 
-    public function requests()
+    public function request()
     {
-        return $this->hasMany(Request::class);
+        return $this->hasOne(Request::class);
     }
 
     public function getFormattedDateAttribute()
@@ -91,7 +91,7 @@ class Attendance extends Model
         });
     }
 
-    public function getWorkMinutesAttribute()
+    public function getTotalWorkMinutesAttribute()
     {
         if (!$this->clock_in || !$this->clock_out) {
             return 0;
@@ -113,4 +113,43 @@ class Attendance extends Model
 
         return max(0, $workedMinutes - $this->total_rest_minutes);
     }
+
+    public function getFormattedTotalRestAttribute()
+    {
+        $minutes = $this->getTotalRestMinutes();
+        return $minutes ? $this->minutesToTime($minutes) : '';
+    }
+
+    protected function minutesToTime($minutes)
+    {
+        $hours = floor($minutes / 60);
+        $mins = $minutes % 60;
+        return sprintf('%d:%02d', $hours, $mins);
+    }
+
+    public function getFormattedTotalWorkAttribute()
+    {
+        $minutes = $this->getTotalWorkMinutes();
+        return $minutes ? $this->minutesToTime($minutes) : '';
+    }
+
+    public function getFormattedClockInAttribute()
+    {
+        return $this->clock_in
+            ? Carbon::parse($this->clock_in)->format('H:i')
+            : '';
+    }
+
+    public function getFormattedClockOutAttribute()
+    {
+        return $this->clock_out
+            ? Carbon::parse($this->clock_out)->format('H:i')
+            : '';
+    }
+
+    public function isPendingApproval()
+    {
+        return $this->request && !$this->request->approved;
+    }
+
 }
