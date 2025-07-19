@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
             $attendance->refresh();
 
             $totalRest = $attendance->total_rest_minutes;
-            $totalWork = $attendance->work_minutes;
+            $totalWork = $attendance->total_work_minutes;
 
             $attendance->update([
                 'total_rest' => $totalRest,

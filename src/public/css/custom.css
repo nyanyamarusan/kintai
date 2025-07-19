@@ -55,6 +55,11 @@
     padding-bottom: 2%;
 }
 
+.py-3p {
+    padding-top: 3%;
+    padding-bottom: 3%;
+}
+
 .py-4p {
     padding-top: 4%;
     padding-bottom: 4%;
@@ -99,11 +104,19 @@
 }
 
 .text-1vw72 {
-    font-size: clamp(12px, 1.72vw, 30px);
+    font-size: clamp(12px, 1.72vw, 32px);
 }
 
 .text-1vw05 {
-    font-size: clamp(12px, 1.05vw, 30px);
+    font-size: clamp(12px, 1.05vw, 28px);
+}
+
+.text-1vw45 {
+    font-size: clamp(14px, 1.45vw, 30px);
+}
+
+.text-1vw19 {
+    font-size: clamp(12px, 1.19vw, 26px);
 }
 
 .h-2vw98 {
@@ -142,6 +155,11 @@
     color: #737373;
 }
 
+.text-FF0000 {
+    color: #FF0000;
+    opacity: 0.5;
+}
+
 .table .text-73 {
     color: #737373;
 }
@@ -172,4 +190,35 @@
 
 .table-fixed {
     table-layout: fixed;
+}
+
+.table .px-8p {
+    padding-left: 8%;
+    padding-right: 8%;
+}
+
+.table .py-4p {
+    padding-top: 4%;
+    padding-bottom: 4%;
+}
+
+.table .px-3p {
+    padding-left: 3%;
+    padding-right: 3%;
+}
+
+.w-30 {
+    width: 30%;
+}
+
+.w-60 {
+    width: 60%;
+}
+
+.w-12 {
+    width: 12%;
+}
+
+.resize-none {
+    resize: none;
 }
