@@ -39,7 +39,7 @@ class Attendance extends Model
 
     public function request()
     {
-        return $this->hasOne(Request::class);
+        return $this->hasOne(Request::class)->latestOfMany();
     }
 
     public function getFormattedDateAttribute()
@@ -116,7 +116,7 @@ class Attendance extends Model
 
     public function getFormattedTotalRestAttribute()
     {
-        $minutes = $this->getTotalRestMinutes();
+        $minutes = $this->total_rest_minutes;
         return $minutes ? $this->minutesToTime($minutes) : '';
     }
 
@@ -129,7 +129,7 @@ class Attendance extends Model
 
     public function getFormattedTotalWorkAttribute()
     {
-        $minutes = $this->getTotalWorkMinutes();
+        $minutes = $this->total_work_minutes;
         return $minutes ? $this->minutesToTime($minutes) : '';
     }
 
@@ -147,9 +147,8 @@ class Attendance extends Model
             : '';
     }
 
-    public function isPendingApproval()
+    public function getIsPendingRequestAttribute()
     {
-        return $this->request && !$this->request->approved;
+        return $this->request?->approved === false;
     }
-
 }

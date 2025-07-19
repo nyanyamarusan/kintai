@@ -41,19 +41,19 @@
                     {{ $day->format('m/d') }}({{ ['日','月','火','水','木','金','土'][$day->dayOfWeek] }})
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->formattedClockIn }}
+                    {{ $attendance?->formatted_clock_in ?? '' }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->formattedClockOut }}
+                    {{ $attendance?->formatted_clock_out ?? '' }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->formattedTotalRest }}
+                    {{ $attendance?->formatted_total_rest ?? '' }}
                 </td>
                 <td class="px-5 text-center text-73">
-                    {{ $attendance?->formattedTotalWork }}
+                    {{ $attendance?->formatted_total_work ?? '' }}
                 </td>
                 <td class="px-5">
-                    <a href="/attendance/{{ $user->id }}" class="text-decoration-none text-black">詳細</a>
+                    <a href="/attendance/{{ $attendance->id }}" class="text-decoration-none text-black">詳細</a>
                 </td>
             </tr>
             @endforeach

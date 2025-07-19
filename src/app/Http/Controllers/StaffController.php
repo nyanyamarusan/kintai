@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RequestRequest;
 use App\Models\Attendance;
+use App\Models\Request as AttendanceRequest;
 use App\Models\User;
 use App\Services\IndexDateService;
 use Carbon\Carbon;
@@ -97,18 +99,56 @@ class StaffController extends Controller
                 return Carbon::parse($attendance->date)->toDateString();
             });
 
-        return view('index', compact('user', 'attendances', 'days', 'year', 'month', 'prevMonth', 'nextMonth'));
+        foreach ($days as $day) {
+            $date = $day->toDateString();
+            if (!isset($attendances[$date])) {
+                $emptyAttendance = Attendance::firstOrCreate([
+                    'user_id' => $user->id,
+                    'date' => $date,
+                ]);
+                $attendances[$date] = $emptyAttendance;
+            }
+        }
+
+        return view('index', compact('user', 'attendances',
+            'days', 'year', 'month', 'prevMonth', 'nextMonth'));
     }
 
     public function show($id)
     {
+        if (Auth::guard('admin')->check()) {
+            $attendance = Attendance::with('user', 'restTimes', 'request')->findOrFail($id);
+        } else {
+            //$user = Auth::user();
+            $user = User::find(1);
+            $attendance = Attendance::with('user', 'restTimes', 'request')
+                ->where('user_id', $user->id)
+                ->findOrFail($id);
+        }
+
+        $user = $attendance->user;
+
+        return view('show', compact('attendance', 'user'));
+    }
+
+    public function update(RequestRequest $request)
+    {
         //$user = Auth::user();
         $user = User::find(1);
-        $attendance = Attendance::find($id);
-        $restTimes = $attendance->restTimes()->get();
-        $request = $attendance->request;
 
-        return view('show', compact('attendance', 'user', 'restTimes', 'request'));
+        $requestData = $request->only([
+            'attendance_id',
+            'clock_in',
+            'clock_out',
+            'rest',
+            'reason',
+        ]);
+
+        $requestData['user_id'] = $user->id;
+
+        AttendanceRequest::create($requestData);
+
+        return redirect('/attendance/list');
     }
 
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,7 @@ Route::get('/attendance', [StaffController::class, 'attendance']);
 Route::post('/attendance/list', [StaffController::class, 'store']);
 Route::get('/attendance/list', [StaffController::class, 'index'])->name('index');
 Route::get('/attendance/{id}', [StaffController::class, 'show']);
+Route::post('/stamp_correction_request/list', [StaffController::class, 'update']);
 
 
 
