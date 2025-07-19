@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Attendance;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,5 +20,19 @@ class RestTime extends Model
     public function attendance()
     {
         return $this->belongsTo(Attendance::class);
+    }
+
+    public function getFormattedStartTimeAttribute()
+    {
+        return $this->start_time
+            ? Carbon::parse($this->start_time)->format('H:i')
+            : '';
+    }
+
+    public function getFormattedEndTimeAttribute()
+    {
+        return $this->end_time
+            ? Carbon::parse($this->end_time)->format('H:i')
+            : '';
     }
 }

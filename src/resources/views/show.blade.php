@@ -6,25 +6,25 @@
         <h2 class="fw-bold content-title border-left pl-2p">勤怠詳細</h2>
         @if (Auth::check() && !Auth::guard('admin')->check() && $attendance->is_pending_request)
         <table class="table rounded-10 mt-5p table-fixed">
-            <tr>
+            <tr class="table-border">
                 <th class="px-8p py-4p text-73">名前</th>
                 <td class="py-4p px-3p">{{ $attendance->user->name }}</td>
             </tr>
-            <tr>
+            <tr class="table-border">
                 <th class="px-8p py-4p text-73">日付</th>
                 <td class="py-4p px-3p">{{ $attendance->date }}</td>
             </tr>
-            <tr>
+            <tr class="table-border">
                 <th class="px-8p py-4p text-73">出勤・退勤</th>
                 <td class="py-4p px-3pp">
                     <div class="w-60 d-flex justify-content-between align-items-center">
-                        <p>{{ $attendance->clock_in }}</p>
+                        <p>{{ $attendance->formatted_clock_in }}</p>
                         <span>~</span>
-                        <p>{{ $attendance->clock_out }}</p>
+                        <p>{{ $attendance->formatted_clock_out }}</p>
                     </div>
             </tr>
             @forelse ($attendance->restTimes as $restTime)
-            <tr>
+            <tr class="table-border">
                 <th class="px-8p py-4p text-73">休憩</th>
                 <td class="py-4p px-3p">
                     <div class="w-60 d-flex justify-content-between align-items-center">
@@ -35,7 +35,7 @@
                 </td>
             </tr>
             @empty
-            <tr>
+            <tr class="table-border">
                 <th class="px-8p py-4p text-73">休憩</th>
                 <td class="py-4p px-3p">
                     <div class="w-60 d-flex justify-content-between align-items-center">
@@ -60,23 +60,23 @@
             @csrf
             <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
             <table class="table rounded-10 mt-5p table-fixed">
-                <tr>
+                <tr class="table-border">
                     <th class="px-8p py-4p text-73 col-4">名前</th>
                     <td class="py-4p px-3p">{{ $attendance->user->name }}</td>
                 </tr>
-                <tr>
+                <tr class="table-border">
                     <th class="px-8p py-4p text-73">日付</th>
                     <td class="py-4p px-3p">{{ $attendance->date }}</td>
                 </tr>
-                <tr>
+                <tr class="table-border">
                     <th id="clock_label" class="px-8p py-4p text-73">出勤・退勤</th>
                     <td class="py-4p">
                         <div class="w-60 d-flex justify-content-between align-items-center">
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="clock_in" name="clock_in"
-                                aria-labelledby="clock_label" value="{{ $attendance->clock_in ?? '' }}">
+                                aria-labelledby="clock_label" value="{{ $attendance->formatted_clock_in ?? '' }}">
                             <span>~</span>
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="clock_out" name="clock_out"
-                                aria-labelledby="clock_label" value="{{ $attendance->clock_out ?? '' }}">
+                                aria-labelledby="clock_label" value="{{ $attendance->formatted_clock_out ?? '' }}">
                         </div>
                         @error('clock_in')
                             <p class="text-danger">{{ $message }}</p>
@@ -88,15 +88,15 @@
                     </td>
                 </tr>
                 @foreach ($attendance->restTimes as $index => $restTime)
-                <tr>
-                    <th id="rest_label_{{ $index }}" class="px-8p py-4p text-73">休憩{{ $index + 1 }}</th>
+                <tr class="table-border">
+                    <th id="rest_label_{{ $index }}" class="px-8p py-4p text-73">休憩{{ $index === 0 ? '' : $index + 1 }}</th>
                     <td class="py-4p">
                         <div class="w-60 d-flex justify-content-between align-items-center">
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="rest_start_{{ $index }}" name="rest[{{ $index }}][start_time]"
-                                aria-labelledby="rest_label_{{ $index }}" value="{{ $restTime->start_time ?? '' }}">
+                                aria-labelledby="rest_label_{{ $index }}" value="{{ $restTime->formatted_start_time ?? '' }}">
                             <span>~</span>
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="rest_end_{{ $index }}" name="rest[{{ $index }}][end_time]"
-                                aria-labelledby="rest_label_{{ $index }}" value="{{ $restTime->end_time ?? '' }}">
+                                aria-labelledby="rest_label_{{ $index }}" value="{{ $restTime->formatted_end_time ?? '' }}">
                         </div>
                         @if ($errors->has("rest.$index.start_time"))
                             <p class="text-danger">{{ $errors->first("rest.$index.start_time") }}</p>
@@ -110,8 +110,8 @@
                 @php
                 $nextIndex = count($attendance->restTimes);
                 @endphp
-                <tr>
-                    <th id="rest_label_{{ $nextIndex }}" class="px-8p py-4p text-73">休憩{{ $nextIndex + 1 }}</th>
+                <tr class="table-border">
+                    <th id="rest_label_{{ $nextIndex }}" class="px-8p py-4p text-73">休憩{{ $nextIndex === 0 ? '' : $nextIndex + 1 }}</th>
                     <td class="py-4p">
                         <div class="w-60 d-flex justify-content-between align-items-center">
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="rest_start_{{ $nextIndex }}" name="rest[{{ $nextIndex }}][start_time]"
