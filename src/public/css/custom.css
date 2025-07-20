@@ -202,9 +202,9 @@
     padding-bottom: 4%;
 }
 
-.table .px-3p {
-    padding-left: 3%;
-    padding-right: 3%;
+.table .px-4p {
+    padding-left: 4%;
+    padding-right: 4%;
 }
 
 .w-30 {
@@ -219,6 +219,14 @@
     width: 12%;
 }
 
+.w-56 {
+    width: 56%;
+}
+
 .resize-none {
     resize: none;
+}
+
+.border-E1 {
+    border: 1px solid #E1E1E1;
 }

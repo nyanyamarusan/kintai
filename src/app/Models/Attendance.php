@@ -24,7 +24,7 @@ class Attendance extends Model
 
     protected $appends = [
         'total_rest_minutes',
-        'work_minutes',
+        'total_work_minutes',
     ];
 
     public function user()
@@ -149,6 +149,6 @@ class Attendance extends Model
 
     public function getIsPendingRequestAttribute()
     {
-        return $this->request?->approved === false;
+        return $this->request !== null && $this->request->approved === false;
     }
 }

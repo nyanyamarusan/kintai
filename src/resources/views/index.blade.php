@@ -53,7 +53,11 @@
                     {{ $attendance?->formatted_total_work ?? '' }}
                 </td>
                 <td class="px-5">
+                    @if ($attendance && $attendance->id)
                     <a href="/attendance/{{ $attendance->id }}" class="text-decoration-none text-black">詳細</a>
+                    @else
+                    <a href="{{ route('redirectByDate', ['date' => $day->toDateString()]) }}" class="text-decoration-none text-black">詳細</a>
+                    @endif
                 </td>
             </tr>
             @endforeach

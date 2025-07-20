@@ -17,9 +17,9 @@ return new class extends Migration
             $table->date('date');
             $table->time('clock_in')->nullable();
             $table->time('clock_out')->nullable();
-            $table->integer('total_rest')->nullable()->default(0);
-            $table->integer('total_work')->nullable()->default(0);
             $table->timestamps();
+
+            $table->unique(['user_id', 'date']);
         });
     }
 

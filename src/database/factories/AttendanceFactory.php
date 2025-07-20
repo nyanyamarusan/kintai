@@ -27,11 +27,9 @@ class AttendanceFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->first()->id,
-            'date' => $start->toDateString(),
+            'date' => $this->faker->unique()->dateTimeBetween('-30 days', 'now')->format('Y-m-d'),
             'clock_in' => $start->format('H:i'),
             'clock_out' => $end->format('H:i'),
-            'total_rest' => 0,
-            'total_work' => 0,
         ];
     }
 }

@@ -17,7 +17,17 @@ class DatabaseSeeder extends Seeder
     {
         User::factory()->count(5)->create();
 
-        Attendance::factory()->count(10)->create()->each(function ($attendance) {
+        Attendance::factory()->count(10)->make()->each(function ($attendance) {
+            $createdAttendance = Attendance::firstOrCreate(
+                [
+                    'user_id' => $attendance->user_id,
+                    'date' => $attendance->date,
+                ],
+                [
+                    'clock_in' => $attendance->clock_in,
+                    'clock_out' => $attendance->clock_out,
+                ]
+            );
             $clockIn = Carbon::parse($attendance->clock_in);
             $clockOut = Carbon::parse($attendance->clock_out);
 
@@ -34,21 +44,11 @@ class DatabaseSeeder extends Seeder
                     continue;
                 }
 
-                $attendance->restTimes()->create([
+                $createdAttendance->restTimes()->create([
                     'start_time' => $start->format('H:i'),
                     'end_time' => $end->format('H:i'),
                 ]);
             }
-
-            $attendance->refresh();
-
-            $totalRest = $attendance->total_rest_minutes;
-            $totalWork = $attendance->total_work_minutes;
-
-            $attendance->update([
-                'total_rest' => $totalRest,
-                'total_work' => $totalWork,
-            ]);
         });
 
         Admin::factory()->count(2)->create();

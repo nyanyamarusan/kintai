@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RequestRequest;
 use App\Models\Attendance;
 use App\Models\Request as AttendanceRequest;
+use App\Models\RequestRest;
 use App\Models\User;
 use App\Services\IndexDateService;
 use Carbon\Carbon;
@@ -34,7 +35,7 @@ class StaffController extends Controller
         switch ($request->input('action')) {
             case 'clock_in':
                 if (!$attendance) {
-                    Attendance::create([
+                    Attendance::updateOrCreate([
                         'user_id' => $user->id,
                         'date' => $today,
                         'clock_in' => now()->format('H:i'),
@@ -44,7 +45,7 @@ class StaffController extends Controller
 
             case 'rest_start':
                 if ($attendance) {
-                    $attendance->restTimes()->create([
+                    $attendance->restTimes()->updateOrCreate([
                         'start_time' => now()->format('H:i'),
                     ]);
                 }
@@ -57,9 +58,6 @@ class StaffController extends Controller
                         $rest->update([
                             'end_time' => now()->format('H:i'),
                         ]);
-                        $attendance->update([
-                            'total_rest' => $attendance->total_rest_minutes,
-                        ]);
                     }
                 }
                 break;
@@ -68,7 +66,6 @@ class StaffController extends Controller
                 if ($attendance && !$attendance->clock_out) {
                     $attendance->update([
                         'clock_out' => now()->format('H:i'),
-                        'total_work' => $attendance->total_work_minutes,
                     ]);
                 }
                 break;
@@ -80,7 +77,7 @@ class StaffController extends Controller
     public function index(Request $request, IndexDateService $indexDateService)
     {
         // $user = Auth::user();
-        $user = User::find(1);
+        $user = User::find(2);
 
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
@@ -101,54 +98,60 @@ class StaffController extends Controller
 
         foreach ($days as $day) {
             $date = $day->toDateString();
-            if (!isset($attendances[$date])) {
-                $emptyAttendance = Attendance::firstOrCreate([
-                    'user_id' => $user->id,
-                    'date' => $date,
-                ]);
-                $attendances[$date] = $emptyAttendance;
-            }
         }
 
         return view('index', compact('user', 'attendances',
             'days', 'year', 'month', 'prevMonth', 'nextMonth'));
     }
 
-    public function show($id)
+    public function redirectByDate($date)
     {
-        if (Auth::guard('admin')->check()) {
-            $attendance = Attendance::with('user', 'restTimes', 'request')->findOrFail($id);
-        } else {
-            //$user = Auth::user();
-            $user = User::find(1);
-            $attendance = Attendance::with('user', 'restTimes', 'request')
-                ->where('user_id', $user->id)
-                ->findOrFail($id);
-        }
+        //$user = Auth::user();
+        $user = User::find(2);
+        $parsedDate = Carbon::parse($date)->toDateString();
 
-        $user = $attendance->user;
+        $attendance = Attendance::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'date' => $parsedDate
+            ],
+            [
+                'clock_in' => null,
+                'clock_out' => null,
+                'total_rest' => 0,
+                'total_work' => 0
+            ]
+        );
 
-        return view('show', compact('attendance', 'user'));
+        return redirect('/attendance/' . $attendance->id);
     }
 
     public function update(RequestRequest $request)
     {
         //$user = Auth::user();
-        $user = User::find(1);
+        $user = User::find(2);
 
         $requestData = $request->only([
             'attendance_id',
             'clock_in',
             'clock_out',
-            'rest',
             'reason',
         ]);
-
         $requestData['user_id'] = $user->id;
+        $attendanceRequest = AttendanceRequest::create($requestData);
 
-        AttendanceRequest::create($requestData);
+        $restInputs = $request->input('rest');
+
+        foreach ($restInputs as $rest) {
+            if (!empty($rest['start_time'])) {
+                RequestRest::create([
+                    'request_id' => $attendanceRequest->id,
+                    'start_time' => $rest['start_time'],
+                    'end_time' => $rest['end_time'],
+                ]);
+            }
+        }
 
         return redirect('/attendance/list');
     }
-
 }

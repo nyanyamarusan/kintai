@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
@@ -15,13 +16,23 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     ->middleware(['auth', 'signed'])
     ->name('verification.verify');
-Route::get('/attendance', [StaffController::class, 'attendance']);
-Route::post('/attendance/list', [StaffController::class, 'store']);
-Route::get('/attendance/list', [StaffController::class, 'index'])->name('index');
-Route::get('/attendance/{id}', [StaffController::class, 'show']);
-Route::post('/stamp_correction_request/list', [StaffController::class, 'update']);
+
+//Route::middleware('auth')->group(function () {
+    Route::get('/attendance', [StaffController::class, 'attendance']);
+    Route::post('/attendance/list', [StaffController::class, 'store']);
+    Route::get('/attendance/list', [StaffController::class, 'index'])->name('index');
+    Route::get('/attendance/date/{date}', [StaffController::class, 'redirectByDate'])->name('redirectByDate');
+    Route::post('/stamp_correction_request/list', [StaffController::class, 'update']);
+//});
+
+Route::middleware('auth:admin')->group(function () {
+    Route::get('/attendance/{id}', [AdminController::class, 'show']);
+    Route::post('admin/attendance/list', [AdminController::class, 'update']);
+});
 
 
+
+Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
 
 
 

@@ -11,8 +11,8 @@ class Request extends Model
 {
     protected $fillable = [
         'attendance_id',
-        'new_clock_in',
-        'new_clock_out',
+        'clock_in',
+        'clock_out',
         'approved',
         'reason',
     ];
@@ -23,7 +23,7 @@ class Request extends Model
 
     public function attendance()
     {
-        return $this->belongsTo(Attendance::class);
+        return $this->belongTo(Attendance::class);
     }
 
     public function requestRests()
