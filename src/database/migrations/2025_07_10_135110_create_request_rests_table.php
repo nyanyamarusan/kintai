@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('request_rests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_id')->constrained()->onDelete('cascade');
-            $table->time('start_time');
-            $table->time('end_time');
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
             $table->timestamps();
         });
     }

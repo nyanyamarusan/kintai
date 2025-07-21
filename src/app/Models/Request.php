@@ -23,7 +23,7 @@ class Request extends Model
 
     public function attendance()
     {
-        return $this->belongTo(Attendance::class);
+        return $this->belongsTo(Attendance::class);
     }
 
     public function requestRests()

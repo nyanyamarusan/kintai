@@ -60,7 +60,7 @@
                             <a href="/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a>
                         </li>
                         <li class="nav-item">
-                            <a {{--href="/attendance/{{ $user->id }}" --}}class="nav-link text-decoration-none text-white">申請</a>
+                            <a href="/stamp_correction_request/list" class="nav-link text-decoration-none text-white">申請</a>
                         </li>
                         @endif
                         <li>

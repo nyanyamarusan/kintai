@@ -16,7 +16,7 @@ class AttendanceController extends Controller
             $user = $attendance->user;
         } else {
             //$user = Auth::user();
-            $user = User::find(2);
+            $user = User::find(1);
             $attendance = Attendance::with('user', 'restTimes', 'request')
                 ->where('user_id', $user->id)
                 ->findOrFail($id);

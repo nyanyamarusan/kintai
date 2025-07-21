@@ -26,8 +26,11 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
 //});
 
 Route::middleware('auth:admin')->group(function () {
-    Route::get('/attendance/{id}', [AdminController::class, 'show']);
     Route::post('admin/attendance/list', [AdminController::class, 'update']);
+});
+
+Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', function () {
+
 });
 
 
@@ -36,5 +39,9 @@ Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
 
 
 
+
+
+
 Route::get('/email/verify', [AuthController::class, 'email']);
+Route::get('/stamp_correction_request/list', [StaffController::class, 'showRequests']);
     

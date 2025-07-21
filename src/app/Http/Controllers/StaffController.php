@@ -77,7 +77,7 @@ class StaffController extends Controller
     public function index(Request $request, IndexDateService $indexDateService)
     {
         // $user = Auth::user();
-        $user = User::find(2);
+        $user = User::find(1);
 
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
@@ -107,7 +107,7 @@ class StaffController extends Controller
     public function redirectByDate($date)
     {
         //$user = Auth::user();
-        $user = User::find(2);
+        $user = User::find(1);
         $parsedDate = Carbon::parse($date)->toDateString();
 
         $attendance = Attendance::firstOrCreate(
@@ -129,7 +129,7 @@ class StaffController extends Controller
     public function update(RequestRequest $request)
     {
         //$user = Auth::user();
-        $user = User::find(2);
+        $user = User::find(1);
 
         $requestData = $request->only([
             'attendance_id',
@@ -152,6 +152,37 @@ class StaffController extends Controller
             }
         }
 
-        return redirect('/attendance/list');
+        return redirect('/stamp_correction_request/list');
+    }
+
+    public function showRequests(Request $request)
+    {
+        //$user = Auth::user();
+        $user = User::find(1);
+        $tab = request()->get('tab', 'pending');
+
+        if ($tab === 'approved') {
+            $requests = AttendanceRequest::where('approved', true)
+                ->whereHas('attendance', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->with('attendance.user')
+                ->get();
+        } else {
+            $requests = AttendanceRequest::where('approved', false)
+                ->whereHas('attendance', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->with('attendance.user')
+                ->get();
+        }
+
+        foreach ($requests as $req) {
+            if ($req->attendance && $req->attendance->date) {
+                $req->attendance->date = Carbon::parse($req->attendance->date)->toDateString();
+            }
+        }
+
+        return view('request', compact('requests', 'tab'));
     }
 }
