@@ -17,4 +17,15 @@ class IndexDateService
         }
         return $days;
     }
+
+    public function getPreviousCurrentNextDate(int $year, int $month, int $day): Collection
+    {
+        $current = Carbon::createFromDate($year, $month, $day);
+
+        return collect([
+            'previous' => $current->copy()->subDay(),
+            'current' => $current,
+            'next' => $current->copy()->addDay(),
+        ]);
+    }
 }

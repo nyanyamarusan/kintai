@@ -6,12 +6,12 @@
         <h2 class="fw-bold content-title border-left pl-2p">勤怠詳細</h2>
         @if (Auth::check() && !Auth::guard('admin')->check() && $attendance->is_pending_request)
         <table class="table rounded-10 mt-5p table-fixed border-E1">
-            <tr class="table-border">
-                <th class="px-8p py-4p text-73">名前</th>
+            <tr class="table-border__td">
+                <th class="px-8p py-4p text-73 col-4">名前</th>
                 <td class="py-4p px-4p">{{ $attendance->user->name }}</td>
             </tr>
-            <tr class="table-border">
-                <th class="px-8p py-4p text-73">日付</th>
+            <tr class="table-border__td">
+                <th class="px-8p py-4p text-73 col-4">日付</th>
                 <td class="py-4p px-4p">
                     <div class="w-56 d-flex justify-content-between align-items-center">
                         <p class="m-0">{{ \Carbon\Carbon::parse($attendance->date)->format('Y年') }}</p>
@@ -19,8 +19,8 @@
                     </div>
                 </td>
             </tr>
-            <tr class="table-border">
-                <th class="px-8p py-4p text-73">出勤・退勤</th>
+            <tr class="table-border__td">
+                <th class="px-8p py-4p text-73 col-4">出勤・退勤</th>
                 <td class="py-4p px-4p">
                     <div class="w-56 d-flex justify-content-between align-items-center">
                         <p class="m-0">{{ $attendance->formatted_clock_in }}</p>
@@ -29,8 +29,8 @@
                     </div>
             </tr>
             @forelse ($attendance->restTimes as $restTime)
-            <tr class="table-border">
-                <th class="px-8p py-4p text-73">休憩</th>
+            <tr class="table-border__td">
+                <th class="px-8p py-4p text-73 col-4">休憩</th>
                 <td class="py-4p px-4p">
                     <div class="w-56 d-flex justify-content-between align-items-center">
                         <p class="m-0">{{ $restTime->formatted_start_time }}</p>
@@ -40,8 +40,8 @@
                 </td>
             </tr>
             @empty
-            <tr class="table-border">
-                <th class="px-8p py-4p text-73">休憩</th>
+            <tr class="table-border__td">
+                <th class="px-8p py-4p text-73 col-4">休憩</th>
                 <td class="py-4p px-4p">
                     <div class="w-56 d-flex justify-content-between align-items-center">
                         <p class="m-0"></p>
@@ -52,7 +52,7 @@
             </tr>
             @endforelse
             <tr>
-                <th class="px-8p py-4p text-73">備考</th>
+                <th class="px-8p py-4p text-73 col-4">備考</th>
                 <td class="py-4p px-4p">{{ $attendance->request->reason }}</td>
             </tr>
         </table>
@@ -64,13 +64,13 @@
         <form action="{{ $formAction }}" method="post" class="mt-5p">
             @csrf
             <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-            <table class="table rounded-10 mt-5p table-fixed">
-                <tr class="table-border">
+            <table class="table rounded-10 mt-5p table-fixed no-border">
+                <tr class="table-border__td">
                     <th class="px-8p py-4p text-73 col-4">名前</th>
                     <td class="py-4p px-4p">{{ $attendance->user->name }}</td>
                 </tr>
-                <tr class="table-border">
-                    <th class="px-8p py-4p text-73">日付</th>
+                <tr class="table-border__td">
+                    <th class="px-8p py-4p text-73 col-4">日付</th>
                     <td class="py-4p px-4p">
                         <div class="w-56 d-flex justify-content-between align-items-center">
                             <p class="m-0">{{ \Carbon\Carbon::parse($attendance->date)->format('Y年') }}</p>
@@ -78,8 +78,8 @@
                         </div>
                     </td>
                 </tr>
-                <tr class="table-border">
-                    <th id="clock_label" class="px-8p py-4p text-73">出勤・退勤</th>
+                <tr class="table-border__td">
+                    <th id="clock_label" class="px-8p py-4p text-73 col-4">出勤・退勤</th>
                     <td class="py-4p">
                         <div class="w-60 d-flex justify-content-between align-items-center">
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="clock_in" name="clock_in"
@@ -98,8 +98,8 @@
                     </td>
                 </tr>
                 @foreach ($attendance->restTimes as $index => $restTime)
-                <tr class="table-border">
-                    <th id="rest_label_{{ $index }}" class="px-8p py-4p text-73">休憩{{ $index === 0 ? '' : $index + 1 }}</th>
+                <tr class="table-border__td">
+                    <th id="rest_label_{{ $index }}" class="px-8p py-4p text-73 col-4">休憩{{ $index === 0 ? '' : $index + 1 }}</th>
                     <td class="py-4p">
                         <div class="w-60 d-flex justify-content-between align-items-center">
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="rest_start_{{ $index }}" name="rest[{{ $index }}][start_time]"
@@ -120,8 +120,8 @@
                 @php
                 $nextIndex = count($attendance->restTimes);
                 @endphp
-                <tr class="table-border">
-                    <th id="rest_label_{{ $nextIndex }}" class="px-8p py-4p text-73">休憩{{ $nextIndex === 0 ? '' : $nextIndex + 1 }}</th>
+                <tr class="table-border__td">
+                    <th id="rest_label_{{ $nextIndex }}" class="px-8p py-4p text-73 col-4">休憩{{ $nextIndex === 0 ? '' : $nextIndex + 1 }}</th>
                     <td class="py-4p">
                         <div class="w-60 d-flex justify-content-between align-items-center">
                             <input type="text" class="form-control rounded-1 w-30 fw-bold text-center py-0" id="rest_start_{{ $nextIndex }}" name="rest[{{ $nextIndex }}][start_time]"
@@ -139,7 +139,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="px-8p py-4p text-73">備考</th>
+                    <th class="px-8p py-4p text-73 col-4">備考</th>
                     <td>
                     <textarea class="form-control rounded-1 w-60 fw-bold resize-none" id="reason" name="reason"></textarea>
                     @error('reason')

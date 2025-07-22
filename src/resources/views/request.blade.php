@@ -12,9 +12,9 @@
             class=" {{ $tab === 'approved' ? 'text-decoration-none text-black fw-bold col-3 text-center py-1p'
             : 'text-decoration-none text-black fw-normal col-3 text-center py-1p' }}">承認済み</a>
     </div>
-    <table class="table rounded-10 mt-5p table-fixed fw-bold">
+    <table class="table rounded-10 mt-5p table-fixed fw-bold no-border">
         <thead>
-            <tr class="table-border">
+            <tr class="table-border__th">
                 <th class="text-center text-73">状態</th>
                 <th class="text-center text-73">名前</th>
                 <th class="text-center text-73">対象日時</th>
@@ -25,7 +25,7 @@
         </thead>
         <tbody>
             @foreach ($requests as $request)
-            <tr>
+            <tr class="table-border__td">
                 @if ($tab === 'pending')
                 <td class="text-center text-73">
                     承認待ち
@@ -48,7 +48,11 @@
                     {{ $request->created_at->format('Y/m/d') }}
                 </td>
                 <td class="px-5">
+                    @if (Auth::guard('admin')->check())
+                    <a href="/stamp_correction_request/approve/{{ $request->id }}" class="text-decoration-none text-black">承認</a>
+                    @else
                     <a href="/attendance/{{ $request->attendance->id }}" class="text-decoration-none text-black">詳細</a>
+                    @endif
                 </td>
             </tr>
             @endforeach

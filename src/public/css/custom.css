@@ -184,9 +184,22 @@
     opacity: 0.3;
 }
 
-.table-border {
+.table-border__td {
     border-bottom: 2px solid #E1E1E1;
 }
+
+.table-border__th {
+    border-bottom: 3px solid #E1E1E1;
+}
+
+.table .table-border__td:last-child {
+    border: none;
+}
+
+.table.no-border {
+    --bs-border-width: 0;
+}
+
 
 .table-fixed {
     table-layout: fixed;
