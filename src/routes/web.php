@@ -27,7 +27,9 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
 
 //Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/attendance/list', [AdminController::class, 'index'])->name('admin-index');
-    Route::post('/admin/attendance/list', [AdminController::class, 'update']);
+    Route::get('/stamp_correction_request/approve/{attendance_correct_request}', [AdminController::class, 'approveForm'])
+        ->name('stamp_correction_request.approve');
+    Route::patch('/admin/attendance/list', [AdminController::class, 'update']);
 //});
 
 Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', function () {

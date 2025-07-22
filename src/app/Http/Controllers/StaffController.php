@@ -118,8 +118,7 @@ class StaffController extends Controller
             [
                 'clock_in' => null,
                 'clock_out' => null,
-                'total_rest' => 0,
-                'total_work' => 0
+                'reason' => null,
             ]
         );
 

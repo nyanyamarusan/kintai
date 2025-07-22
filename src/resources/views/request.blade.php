@@ -24,7 +24,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($requests as $request)
+            @foreach ($requests as $attendanceCorrectRequest)
             <tr class="table-border__td">
                 @if ($tab === 'pending')
                 <td class="text-center text-73">
@@ -36,22 +36,22 @@
                 </td>
                 @endif
                 <td class="text-center text-73">
-                    {{ $request->attendance->user->name }}
+                    {{ $attendanceCorrectRequest->attendance->user->name }}
                 </td>
                 <td class="text-center text-73">
-                    {{ \Carbon\Carbon::parse($request->attendance->date)->format('Y/m/d') }}
+                    {{ \Carbon\Carbon::parse($attendanceCorrectRequest->attendance->date)->format('Y/m/d') }}
                 </td>
                 <td class="text-center text-73">
-                    {{ $request->reason }}
+                    {{ $attendanceCorrectRequest->reason }}
                 </td>
                 <td class="text-center text-73">
-                    {{ $request->created_at->format('Y/m/d') }}
+                    {{ $attendanceCorrectRequest->created_at->format('Y/m/d') }}
                 </td>
                 <td class="px-5">
                     @if (Auth::guard('admin')->check())
-                    <a href="/stamp_correction_request/approve/{{ $request->id }}" class="text-decoration-none text-black">承認</a>
+                    <a href="{{ route('stamp_correction_request.approve', $attendanceCorrectRequest) }}" class="text-decoration-none text-black">承認</a>
                     @else
-                    <a href="/attendance/{{ $request->attendance->id }}" class="text-decoration-none text-black">詳細</a>
+                    <a href="/attendance/{{ $attendanceCorrectRequest->attendance->id }}" class="text-decoration-none text-black">詳細</a>
                     @endif
                 </td>
             </tr>

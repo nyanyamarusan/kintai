@@ -17,6 +17,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('clock_in')->nullable();
             $table->time('clock_out')->nullable();
+            $table->text('reason')->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'date']);

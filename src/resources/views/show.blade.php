@@ -23,19 +23,20 @@
                 <th class="px-8p py-4p text-73 col-4">出勤・退勤</th>
                 <td class="py-4p px-4p">
                     <div class="w-56 d-flex justify-content-between align-items-center">
-                        <p class="m-0">{{ $attendance->formatted_clock_in }}</p>
+                        <p class="m-0">{{ $attendance->request->formatted_clock_in }}</p>
                         <span>~</span>
-                        <p class="m-0">{{ $attendance->formatted_clock_out }}</p>
+                        <p class="m-0">{{ $attendance->request->formatted_clock_out }}</p>
                     </div>
+                </td>
             </tr>
-            @forelse ($attendance->restTimes as $restTime)
+            @forelse ($attendance->request->requestRests as $requestRest)
             <tr class="table-border__td">
                 <th class="px-8p py-4p text-73 col-4">休憩</th>
                 <td class="py-4p px-4p">
                     <div class="w-56 d-flex justify-content-between align-items-center">
-                        <p class="m-0">{{ $restTime->formatted_start_time }}</p>
+                        <p class="m-0">{{ $requestRest->formatted_start_time }}</p>
                         <span>~</span>
-                        <p class="m-0">{{ $restTime->formatted_end_time }}</p>
+                        <p class="m-0">{{ $requestRest->formatted_end_time }}</p>
                     </div>
                 </td>
             </tr>
@@ -58,10 +59,12 @@
         </table>
         <p class="text-1vw19 mt-2p text-end fw-extrabold text-FF0000">*承認待ちのため修正はできません。</p>
         @else
-        @php
-        $formAction = Auth::guard('admin')->check() ? '/attendance/list' : '/stamp_correction_request/list';
-        @endphp
-        <form action="{{ $formAction }}" method="post" class="mt-5p">
+        @if (Auth::guard('admin')->check())
+        <form action="/admin/attendance/list" method="post" class="mt-5p">
+            @method('patch')
+        @else
+        <form action="/stamp_correction_request/list" method="post" class="mt-5p">
+        @endif
             @csrf
             <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
             <table class="table rounded-10 mt-5p table-fixed no-border">

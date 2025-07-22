@@ -17,6 +17,11 @@ class RestTime extends Model
         'end_time',
     ];
 
+    protected $appends = [
+        'formatted_start_time',
+        'formatted_end_time',
+    ];
+
     public function attendance()
     {
         return $this->belongsTo(Attendance::class);

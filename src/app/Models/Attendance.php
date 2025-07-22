@@ -25,6 +25,8 @@ class Attendance extends Model
     protected $appends = [
         'total_rest_minutes',
         'total_work_minutes',
+        'formatted_clock_in',
+        'formatted_clock_out',
     ];
 
     public function user()
