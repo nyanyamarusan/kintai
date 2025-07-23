@@ -93,6 +93,11 @@
     margin-top: 15%;
 }
 
+.my-4p {
+    margin-top: 4%;
+    margin-bottom: 4%;
+}
+
 .m-10p {
     margin: 10%;
 }
@@ -234,6 +239,10 @@
 
 .w-56 {
     width: 56%;
+}
+
+.w-18 {
+    width: 18%;
 }
 
 .resize-none {

@@ -21,15 +21,17 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     Route::get('/attendance', [StaffController::class, 'attendance']);
     Route::post('/attendance/list', [StaffController::class, 'store']);
     Route::get('/attendance/list', [StaffController::class, 'index'])->name('index');
-    Route::get('/attendance/date/{date}', [StaffController::class, 'redirectByDate'])->name('redirectByDate');
     Route::post('/stamp_correction_request/list', [StaffController::class, 'update']);
 //});
 
 //Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/attendance/list', [AdminController::class, 'index'])->name('admin-index');
+    Route::patch('/admin/attendance/list', [AdminController::class, 'update']);
+    Route::get('/admin/staff/list', [AdminController::class, 'showStaffs']);
+    Route::get('/admin/attendance/staff/{id}', [AdminController::class, 'show'])->name('staff-attendance.show');
+    Route::get('/admin/attendance/staff/{id}/export', [AdminController::class, 'export'])->name('export');
     Route::get('/stamp_correction_request/approve/{attendance_correct_request}', [AdminController::class, 'approveForm'])
         ->name('stamp_correction_request.approve');
-    Route::patch('/admin/attendance/list', [AdminController::class, 'update']);
 //});
 
 Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', function () {
@@ -39,6 +41,7 @@ Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', funct
 
 
 Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
+Route::get('/attendance/date/{date}', [AttendanceController::class, 'redirectByDate'])->name('redirectByDate');
 
 
 

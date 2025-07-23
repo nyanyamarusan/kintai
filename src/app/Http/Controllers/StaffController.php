@@ -104,27 +104,6 @@ class StaffController extends Controller
             'days', 'year', 'month', 'prevMonth', 'nextMonth'));
     }
 
-    public function redirectByDate($date)
-    {
-        //$user = Auth::user();
-        $user = User::find(1);
-        $parsedDate = Carbon::parse($date)->toDateString();
-
-        $attendance = Attendance::firstOrCreate(
-            [
-                'user_id' => $user->id,
-                'date' => $parsedDate
-            ],
-            [
-                'clock_in' => null,
-                'clock_out' => null,
-                'reason' => null,
-            ]
-        );
-
-        return redirect('/attendance/' . $attendance->id);
-    }
-
     public function update(RequestRequest $request)
     {
         //$user = Auth::user();

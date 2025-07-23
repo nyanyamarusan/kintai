@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AttendanceExport;
 use App\Http\Requests\RequestRequest;
 use App\Models\Attendance;
 use App\Models\Request as AttendanceRequest;
+use App\Models\User;
 use App\Services\IndexDateService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
@@ -75,5 +78,81 @@ class AdminController extends Controller
         }
 
         return redirect('admin/attendance/list');
+    }
+
+    public function showStaffs()
+    {
+        $users = User::all();
+
+        return view('staff', compact('users'));
+    }
+
+    public function show(Request $request, IndexDateService $indexDateService, $id)
+    {
+        $user = User::findOrFail($id);
+        $year = $request->input('year', now()->year);
+        $month = $request->input('month', now()->month);
+
+        $days = $indexDateService->getDaysOfMonth($year, $month);
+
+        $carbon = Carbon::create($year, $month);
+        $prevMonth = $carbon->copy()->subMonth();
+        $nextMonth = $carbon->copy()->addMonth();
+
+        $attendances = Attendance::with('user', 'restTimes')
+            ->where('user_id', $user->id)
+            ->whereBetween('date', [$days->first()->toDateString(), $days->last()->toDateString()])
+            ->get()
+            ->keyBy(function ($attendance) {
+                return Carbon::parse($attendance->date)->toDateString();
+            });
+
+        foreach ($days as $day) {
+            $date = $day->toDateString();
+        }
+
+        return view('staff-attendance', compact('user', 'attendances',
+            'days', 'year', 'month', 'prevMonth', 'nextMonth'));
+    }
+
+    public function export(Request $request, IndexDateService $indexDateService, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $year = $request->input('year', now()->year);
+        $month = $request->input('month', now()->month);
+
+        $days = $indexDateService->getDaysOfMonth($year, $month);
+
+        $attendances = Attendance::with('user', 'restTimes')
+            ->where('user_id', $user->id)
+            ->whereBetween('date', [$days->first()->toDateString(), $days->last()->toDateString()])
+            ->get()
+            ->keyBy(function ($attendance) {
+                return Carbon::parse($attendance->date)->toDateString();
+            });
+
+        $rows = collect();
+
+        foreach ($days as $day) {
+            $date = $day->toDateString();
+            $attendance = $attendances->get($date);
+
+            if (!$attendance) {
+                $attendance = new Attendance([
+                    'date' => $date,
+                    'clock_in' => null,
+                    'clock_out' => null,
+                    'formatted_total_rest' => null,
+                    'formatted_total_work' => null,
+                ]);
+            }
+
+            $rows->push($attendance);
+        }
+
+        return Excel::download(
+            new AttendanceExport($rows, $user),
+            'attendance_' . $user->name . '_' . $year . '_' . str_pad($month, 2, '0', STR_PAD_LEFT) . '.csv');
     }
 }
