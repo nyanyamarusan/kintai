@@ -51,6 +51,6 @@ class DatabaseSeeder extends Seeder
             }
         });
 
-        Admin::factory()->count(2)->create();
+        Admin::factory()->count(1)->create();
     }
 }

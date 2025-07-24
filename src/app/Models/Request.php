@@ -49,4 +49,9 @@ class Request extends Model
             ? Carbon::parse($this->clock_out)->format('H:i')
             : '';
     }
+
+    public function getIsPendingRequestAttribute()
+    {
+        return $this->approved === false;
+    }
 }

@@ -8,7 +8,7 @@
         <table class="table rounded-10 mt-5p table-fixed border-E1">
             <tr class="table-border__td">
                 <th class="px-8p py-4p text-73 col-4">名前</th>
-                <td class="py-4p px-4p">{{ $attendance->user->name }}</td>
+                <td class="py-4p px-4p">{{ $user->name }}</td>
             </tr>
             <tr class="table-border__td">
                 <th class="px-8p py-4p text-73 col-4">日付</th>

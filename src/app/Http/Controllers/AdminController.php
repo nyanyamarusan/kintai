@@ -11,6 +11,7 @@ use App\Services\IndexDateService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
@@ -154,5 +155,43 @@ class AdminController extends Controller
         return Excel::download(
             new AttendanceExport($rows, $user),
             'attendance_' . $user->name . '_' . $year . '_' . str_pad($month, 2, '0', STR_PAD_LEFT) . '.csv');
+    }
+
+    public function approveForm($id)
+    {
+        $attendanceRequest = AttendanceRequest::with('attendance.user', 'requestRests')
+            ->findOrFail($id);
+        $user = $attendanceRequest->attendance->user;
+
+        return view('approve', compact('attendanceRequest', 'user'));
+    }
+
+    public function approve($id)
+    {
+        DB::transaction(function () use ($id) {
+            $attendanceRequest = AttendanceRequest::with('attendance.restTimes', 'requestRests')
+                ->findOrFail($id);
+
+            $attendanceRequest->update([
+                'approved' => true,
+            ]);
+
+            $attendanceRequest->attendance->update([
+                'clock_in' => $attendanceRequest->clock_in,
+                'clock_out' => $attendanceRequest->clock_out,
+            ]);
+
+            $attendance = $attendanceRequest->attendance;
+            $attendance->restTimes()->delete();
+
+            foreach ($attendanceRequest->requestRests as $requestRest) {
+                $attendance->restTimes()->create([
+                    'start_time' => $requestRest->start_time,
+                    'end_time' => $requestRest->end_time,
+                ]);
+            }
+        });
+
+        return redirect()->back();
     }
 }

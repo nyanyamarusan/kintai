@@ -31,7 +31,9 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     Route::get('/admin/attendance/staff/{id}', [AdminController::class, 'show'])->name('staff-attendance.show');
     Route::get('/admin/attendance/staff/{id}/export', [AdminController::class, 'export'])->name('export');
     Route::get('/stamp_correction_request/approve/{attendance_correct_request}', [AdminController::class, 'approveForm'])
-        ->name('stamp_correction_request.approve');
+        ->name('request.approve');
+    Route::patch('/stamp_correction_request/approve/{attendance_correct_request}', [AdminController::class, 'approve'])
+        ->name('request.approve.patch');
 //});
 
 Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', function () {
