@@ -17,14 +17,14 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
     ->middleware(['auth', 'signed'])
     ->name('verification.verify');
 
-//Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::get('/attendance', [StaffController::class, 'attendance']);
     Route::post('/attendance/list', [StaffController::class, 'store']);
     Route::get('/attendance/list', [StaffController::class, 'index'])->name('index');
     Route::post('/stamp_correction_request/list', [StaffController::class, 'update']);
-//});
+});
 
-//Route::middleware('auth:admin')->group(function () {
+Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/attendance/list', [AdminController::class, 'index'])->name('admin-index');
     Route::patch('/admin/attendance/list', [AdminController::class, 'update']);
     Route::get('/admin/staff/list', [AdminController::class, 'showStaffs']);
@@ -34,22 +34,13 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
         ->name('request.approve');
     Route::patch('/stamp_correction_request/approve/{attendance_correct_request}', [AdminController::class, 'approve'])
         ->name('request.approve.patch');
-//});
+});
 
 Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', function () {
 
 });
 
 
-
+//ミドルウェア自作する（共通ルート）
 Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
 Route::get('/attendance/date/{date}', [AttendanceController::class, 'redirectByDate'])->name('redirectByDate');
-
-
-
-
-
-
-Route::get('/email/verify', [AuthController::class, 'email']);
-Route::get('/stamp_correction_request/list', [StaffController::class, 'showRequests']);
-    

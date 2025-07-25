@@ -17,8 +17,7 @@ class AttendanceController extends Controller
                 ->findOrFail($id);
             $user = $attendance->user;
         } else {
-            //$user = Auth::user();
-            $user = User::find(1);
+            $user = Auth::user();
             $attendance = Attendance::with('user', 'restTimes', 'request')
                 ->where('user_id', $user->id)
                 ->findOrFail($id);
@@ -34,8 +33,7 @@ class AttendanceController extends Controller
             $userId = $request->query('user_id');
             $user = User::findOrFail($userId);
         } else {
-            //$user = Auth::user();
-            $user = User::find(1);
+            $user = Auth::user();
         }
 
         $parsedDate = Carbon::parse($date)->toDateString();

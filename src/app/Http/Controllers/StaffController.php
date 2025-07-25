@@ -6,7 +6,6 @@ use App\Http\Requests\RequestRequest;
 use App\Models\Attendance;
 use App\Models\Request as AttendanceRequest;
 use App\Models\RequestRest;
-use App\Models\User;
 use App\Services\IndexDateService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,9 +15,7 @@ class StaffController extends Controller
 {
     public function attendance()
     {
-        $user = User::find(1);
-
-        //$user = Auth::user();
+        $user = Auth::user();
         $today = now()->toDateString();
         $attendance = Attendance::where('user_id', $user->id)->whereDate('date', $today)->first();
         return view('attendance', compact('user', 'attendance'));
@@ -26,9 +23,7 @@ class StaffController extends Controller
 
     public function store(Request $request)
     {
-        $user = User::find(1);
-
-        //$user = Auth::user();
+        $user = Auth::user();
         $today = now()->toDateString();
         $attendance = Attendance::where('user_id', $user->id)->whereDate('date', $today)->first();
 
@@ -76,8 +71,7 @@ class StaffController extends Controller
 
     public function index(Request $request, IndexDateService $indexDateService)
     {
-        // $user = Auth::user();
-        $user = User::find(1);
+        $user = Auth::user();
 
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
@@ -106,8 +100,7 @@ class StaffController extends Controller
 
     public function update(RequestRequest $request)
     {
-        //$user = Auth::user();
-        $user = User::find(1);
+        $user = Auth::user();
 
         $requestData = $request->only([
             'attendance_id',
@@ -135,8 +128,7 @@ class StaffController extends Controller
 
     public function showRequests(Request $request)
     {
-        //$user = Auth::user();
-        $user = User::find(1);
+        $user = Auth::user();
         $tab = request()->get('tab', 'pending');
 
         if ($tab === 'approved') {
