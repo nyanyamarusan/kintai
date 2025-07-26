@@ -56,7 +56,11 @@
                     @if ($attendance && $attendance->id)
                     <a href="/attendance/{{ $attendance->id }}" class="text-decoration-none text-black">詳細</a>
                     @else
-                    <a href="{{ route('redirectByDate', ['date' => $day->toDateString()]) }}" class="text-decoration-none text-black">詳細</a>
+                    <form action="/attendance/date" method="post">
+                        @csrf
+                        <input type="hidden" name="date" value="{{ $day->toDateString() }}">
+                        <button type="submit" class="text-decoration-none text-black border-0 bg-transparent p-0 fw-bold">詳細</button>
+                    </form>
                     @endif
                 </td>
             </tr>

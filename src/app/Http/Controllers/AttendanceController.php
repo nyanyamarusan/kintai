@@ -27,11 +27,13 @@ class AttendanceController extends Controller
         return view('show', compact('attendance', 'user'));
     }
 
-    public function redirectByDate(Request $request, $date)
+    public function redirectByDate(Request $request)
     {
+        $date = $request->input('date');
+
         if (Auth::guard('admin')->check()) {
-            $userId = $request->query('user_id');
-            $user = User::findOrFail($userId);
+            $userId = $request->input('user_id');
+            $user = User::find($userId);
         } else {
             $user = Auth::user();
         }

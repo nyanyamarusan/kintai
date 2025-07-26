@@ -24,18 +24,26 @@ class AdminController extends Controller
         $dates = $indexDateService->getPreviousCurrentNextDate($year, $month, $day);
 
         $carbon = $dates['current'];
+        $currentDate = $carbon->toDateString();
         $prevDay = $carbon->copy()->subDay();
         $nextDay = $carbon->copy()->addDay();
 
         $attendances = Attendance::with('user', 'restTimes')
-            ->whereBetween('date', [$prevDay->toDateString(), $nextDay->toDateString()])
+            ->whereDate('date', $currentDate)
             ->get()
-            ->groupBy(function ($attendance) {
-                return Carbon::parse($attendance->date)->toDateString();
-            });
+            ->keyBy('user_id');
 
-        return view('admin-index', compact('attendances',
-            'dates', 'year', 'month', 'day', 'prevDay', 'nextDay'));
+        $users = User::all();
+
+        $attendanceList = $users->map(function ($user) use ($attendances) {
+            return [
+                'user' => $user,
+                'attendance' => $attendances[$user->id] ?? null,
+            ];
+        });
+
+        return view('admin-index', compact('attendanceList',
+            'dates', 'year', 'month', 'day', 'prevDay', 'nextDay', 'users'));
     }
 
     public function showRequests(Request $request)
@@ -90,6 +98,7 @@ class AdminController extends Controller
     public function show(Request $request, IndexDateService $indexDateService, $id)
     {
         $user = User::findOrFail($id);
+
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
 

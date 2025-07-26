@@ -34,29 +34,34 @@
             </tr>
         </thead>
         <tbody>
-            @php
-            $currentDate = $dates['current']->toDateString();
-            $dayAttendances = $attendances[$currentDate] ?? collect();
-            @endphp
-            @foreach ($dayAttendances as $attendance)
+            @foreach ($attendanceList as $data)
             <tr class="table-border__td">
                 <td class="text-73 text-center">
-                    {{ $attendance?->user->name }}
+                    {{ $data['user']?->name }}
                 </td>
                 <td class="text-center text-73">
-                    {{ $attendance?->formatted_clock_in ?? '' }}
+                    {{ $data['attendance']?->formatted_clock_in ?? '' }}
                 </td>
                 <td class="text-center text-73">
-                    {{ $attendance?->formatted_clock_out ?? '' }}
+                    {{ $data['attendance']?->formatted_clock_out ?? '' }}
                 </td>
                 <td class="text-center text-73">
-                    {{ $attendance?->formatted_total_rest ?? '' }}
+                    {{ $data['attendance']?->formatted_total_rest ?? '' }}
                 </td>
                 <td class="text-center text-73">
-                    {{ $attendance?->formatted_total_work ?? '' }}
+                    {{ $data['attendance']?->formatted_total_work ?? '' }}
                 </td>
                 <td class="px-5">
-                    <a href="/attendance/{{ $attendance->id }}" class="text-decoration-none text-black">詳細</a>
+                    @if ($data['attendance'] && $data['attendance']->id)
+                    <a href="/attendance/{{ $data['attendance']->id }}" class="text-decoration-none text-black">詳細</a>
+                    @else
+                    <form action="/attendance/date" method="post">
+                        @csrf
+                        <input type="hidden" name="date" value="{{ $dates['current']->toDateString() }}">
+                        <input type="hidden" name="user_id" value="{{ $data['user']?->id }}">
+                        <button type="submit" class="text-decoration-none text-black border-0 bg-transparent p-0 fw-bold">詳細</button>
+                    </form>
+                    @endif
                 </td>
             </tr>
             @endforeach

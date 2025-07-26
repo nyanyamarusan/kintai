@@ -2,6 +2,7 @@
 
 
 use App\Http\Middleware\DetectGuard;
+use App\Http\Middleware\SharedAccess;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'detect.guard' => DetectGuard::class
+            'detect.guard' => DetectGuard::class,
+            'shared.access' => SharedAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

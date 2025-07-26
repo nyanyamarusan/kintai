@@ -40,7 +40,7 @@ Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', funct
 
 });
 
-
-//ミドルウェア自作する（共通ルート）
-Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
-Route::get('/attendance/date/{date}', [AttendanceController::class, 'redirectByDate'])->name('redirectByDate');
+Route::middleware('shared.access')->group(function () {
+    Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
+    Route::post('/attendance/date', [AttendanceController::class, 'redirectByDate']);
+});
