@@ -1,0 +1,258 @@
+.inter {
+    font-family: "Inter";
+}
+
+.text {
+    font-size: clamp(15px, 1.58vw, 28px);
+}
+
+.form-title {
+    font-size: clamp(24px, 2.38vw, 42px);
+}
+
+.content-title {
+    font-size: clamp(22px, 1.98vw, 40px);
+}
+
+.status {
+    font-size: clamp(14px, 1.19vw, 24px);
+}
+
+.attendance-btn-text {
+    font-size: clamp(20px, 2.11vw, 36px);
+    font-weight: 700;
+}
+
+.date {
+    font-size: clamp(26px, 2.65vw, 60px);
+}
+
+.time {
+    font-size: clamp(50px, 5.3vw, 120px);
+}
+
+.p-1p {
+    padding: 1%;
+}
+
+.px-2p {
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+.px-3p {
+    padding-left: 3%;
+    padding-right: 3%;
+}
+
+.py-1p {
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+.py-2p {
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+.py-3p {
+    padding-top: 3%;
+    padding-bottom: 3%;
+}
+
+.py-4p {
+    padding-top: 4%;
+    padding-bottom: 4%;
+}
+
+.pt-5p {
+    padding-top: 5%;
+}
+
+.pt-8p {
+    padding-top: 8%;
+}
+
+.pl-2p {
+    padding-left: 2%;
+}
+
+.mt-2p {
+    margin-top: 2%;
+}
+
+.mt-5p {
+    margin-top: 5%;
+}
+
+.mt-10p {
+    margin-top: 10%;
+}
+
+.mt-15p {
+    margin-top: 15%;
+}
+
+.my-4p {
+    margin-top: 4%;
+    margin-bottom: 4%;
+}
+
+.m-10p {
+    margin: 10%;
+}
+
+.link {
+    color: #0073CC;
+    font-size: clamp(12px, 1.32vw, 24px);
+    background-color: transparent;
+}
+
+.text-1vw72 {
+    font-size: clamp(12px, 1.72vw, 32px);
+}
+
+.text-1vw05 {
+    font-size: clamp(12px, 1.05vw, 28px);
+}
+
+.text-1vw45 {
+    font-size: clamp(14px, 1.45vw, 30px);
+}
+
+.text-1vw19 {
+    font-size: clamp(12px, 1.19vw, 26px);
+}
+
+.h-2vw98 {
+    height: clamp(24px, 2.98vw, 60px);
+}
+
+.h-4vw {
+    height: clamp(28px, 4vw, 68px);
+}
+
+.m-h-100vh {
+    min-height: 100vh;
+}
+
+.rounded-10 {
+    border-radius: 10px;
+}
+
+.bg-gray-d9 {
+    background-color: #D9D9D9;
+}
+
+.bg-gray-c8 {
+    background-color: #C8C8C8;
+}
+
+.bg-f0eff2 {
+    background-color: #f0eff2;
+}
+
+.bg-gray-69 {
+    background-color: #696969;
+}
+
+.text-gray-69 {
+    color: #696969;
+}
+
+.text-73 {
+    color: #737373;
+}
+
+.text-FF0000 {
+    color: #FF0000;
+    opacity: 0.5;
+}
+
+.table .text-73 {
+    color: #737373;
+}
+
+.rounded-20 {
+    border-radius: 20px;
+}
+
+.ls-15 {
+    letter-spacing: 0.15em;
+}
+
+.border-left {
+    border-left: 8px solid #000;
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+.opacity-30 {
+    opacity: 0.3;
+}
+
+.table-border__td {
+    border-bottom: 2px solid #E1E1E1;
+}
+
+.table-border__th {
+    border-bottom: 3px solid #E1E1E1;
+}
+
+.table .table-border__td:last-child {
+    border: none;
+}
+
+.table.no-border {
+    --bs-border-width: 0;
+}
+
+
+.table-fixed {
+    table-layout: fixed;
+}
+
+.table .px-8p {
+    padding-left: 8%;
+    padding-right: 8%;
+}
+
+.table .py-4p {
+    padding-top: 4%;
+    padding-bottom: 4%;
+}
+
+.table .px-4p {
+    padding-left: 4%;
+    padding-right: 4%;
+}
+
+.w-30 {
+    width: 30%;
+}
+
+.w-60 {
+    width: 60%;
+}
+
+.w-12 {
+    width: 12%;
+}
+
+.w-56 {
+    width: 56%;
+}
+
+.w-18 {
+    width: 18%;
+}
+
+.resize-none {
+    resize: none;
+}
+
+.border-E1 {
+    border: 1px solid #E1E1E1;
+}
