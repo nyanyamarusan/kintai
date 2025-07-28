@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Admin;
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\RestTime;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -254,7 +255,9 @@ class KintaiTest extends TestCase
         $this->actingAs($user);
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('勤務外');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">勤務外
+        </span>', false);
     }
 
     public function test_attendance_status_is_clock_in(): void
@@ -272,7 +275,9 @@ class KintaiTest extends TestCase
         $this->actingAs($user);
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('出勤中');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">出勤中
+        </span>', false);
     }
 
     public function test_attendance_status_is_rest(): void
@@ -294,7 +299,9 @@ class KintaiTest extends TestCase
         $this->actingAs($user);
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('休憩中');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">休憩中
+        </span>', false);
     }
 
     public function test_attendance_status_is_clock_out(): void
@@ -312,7 +319,9 @@ class KintaiTest extends TestCase
         $this->actingAs($user);
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('退勤済');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">退勤済
+        </span>', false);
     }
 
     public function test_clock_in_button(): void
@@ -324,7 +333,8 @@ class KintaiTest extends TestCase
         $this->actingAs($user);
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('出勤');
+        $response->assertSeeText('出勤');
+        $response->assertSee('clock_in');
 
         $response = $this->post('/attendance/list', [
             'action' => 'clock_in',
@@ -332,7 +342,9 @@ class KintaiTest extends TestCase
 
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('出勤中');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">出勤中
+        </span>', false);
     }
 
     public function test_not_show_clock_in_button_on_clock_out(): void
@@ -350,7 +362,9 @@ class KintaiTest extends TestCase
         $this->actingAs($user);
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('退勤済');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">退勤済
+        </span>', false);
         $response->assertDontSee('<button type="submit" name="action" value="clock_in">出勤</button>', false);
     }
 
@@ -370,9 +384,9 @@ class KintaiTest extends TestCase
 
         $response = $this->get('/attendance/list');
         $response->assertStatus(200);
-        $response->assertSee('2025/07');
-        $response->assertSee('07/27(日)');
-        $response->assertSee('00:00');
+        $response->assertSeeText('2025/07');
+        $response->assertSeeText('07/27(日)');
+        $response->assertSeeText('00:00');
     }
 
     public function test_rest_start_button(): void
@@ -398,7 +412,9 @@ class KintaiTest extends TestCase
 
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('休憩中');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">休憩中
+        </span>', false);
     }
 
     public function test_can_many_rests(): void
@@ -465,7 +481,9 @@ class KintaiTest extends TestCase
 
         $response = $this->get('/attendance');
         $response->assertStatus(200);
-        $response->assertSee('出勤中');
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">出勤中
+        </span>', false);
     }
 
     public function test_can_many_end_rests(): void
@@ -538,10 +556,216 @@ class KintaiTest extends TestCase
 
         $response = $this->get('/attendance/list');
         $response->assertStatus(200);
-        $response->assertSee('2025/07');
-        $response->assertSee('07/27(日)');
-        $response->assertSee('1:00');
+        $response->assertSeeText('2025/07');
+        $response->assertSeeText('07/27(日)');
+        $response->assertSeeText('1:00');
     }
 
+    public function test_clock_out_button(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 27, 17, 0);
+        Carbon::setTestNow($fixedDate);
+        $user = User::factory()->create();
+        Attendance::create([
+            'user_id' => $user->id,
+            'date' => $fixedDate->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => null,
+        ]);
 
+        $this->actingAs($user);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSeeText('退勤');
+        $response->assertSee('clock_out');
+        $response = $this->post('/attendance/list', [
+            'action' => 'clock_out',
+        ]);
+
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSee('<span class="bg-gray-c8 rounded-pill text-gray-69
+            status px-3p py-1p">退勤済
+        </span>', false);
+    }
+
+    public function test_show_clock_out_on_index(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 27, 9, 0);
+        Carbon::setTestNow($fixedDate);
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'clock_in',
+        ]);
+
+        $fixedDate = Carbon::create(2025, 7, 27, 17, 0);
+        Carbon::setTestNow($fixedDate);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'clock_out',
+        ]);
+
+        $response = $this->get('/attendance/list');
+        $response->assertStatus(200);
+        $response->assertSeeText('2025/07');
+        $response->assertSeeText('07/27(日)');
+        $response->assertSeeText('17:00');
+    }
+
+    public function test_show_attendance_list(): void
+    {
+        $user = User::factory()->create();
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        $attendances = Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $fixedDate->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        foreach ($attendances as $attendance) {
+            RestTime::factory()->create([
+                'attendance_id' => $attendance->id,
+                'start_time' => '12:00',
+                'end_time' => '13:00',
+            ]);
+        }
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/list');
+        $response->assertStatus(200);
+
+        Attendance::where('user_id', $user->id)->get()->each(function ($attendance) use ($response) {
+            $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('m/d(D)'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($attendance->formatted_total_rest);
+            $response->assertSeeText($attendance->formatted_total_work);
+        });
+    }
+
+    public function test_show_attendance_list_with_now_month(): void
+    {
+        $now = Carbon::now();
+
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->get('/attendance/list');
+        $response->assertStatus(200);
+        $response->assertSeeText($now->format('Y/m'));
+    }
+
+    public function test_show_previous_month_attendance(): void
+    {
+        $now = Carbon::create(2025, 7, 27);
+        Carbon::setTestNow($now);
+        Carbon::setLocale('ja');
+
+        $user = User::factory()->create();
+
+        $startOfJune = Carbon::create(2025, 6, 1);
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfJune->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $startOfJuly = $now->copy()->startOfMonth();
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfJuly->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $this->actingAs($user);
+        $url = route('index', ['year' => 2025, 'month' => 6]);
+        $response = $this->get($url);
+        $response->assertStatus(200);
+
+        $response->assertSeeText('2025/06');
+
+        Attendance::where('user_id', $user->id)
+            ->whereMonth('date', 6)
+            ->get()
+            ->each(function ($attendance) use ($response) {
+                $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('m/d(D)'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+                $response->assertSeeText($attendance->formatted_total_rest);
+                $response->assertSeeText($attendance->formatted_total_work);
+            });
+    }
+
+    public function test_show_next_month_attendance(): void
+    {
+        $now = Carbon::create(2025, 7, 27);
+        Carbon::setTestNow($now);
+        Carbon::setLocale('ja');
+
+        $user = User::factory()->create();
+
+        $startOfJuly = $now->copy()->startOfMonth();
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfJuly->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $startOfAugust = Carbon::create(2025, 8, 1);
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfAugust->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $this->actingAs($user);
+        $url = route('index', ['year' => 2025, 'month' => 8]);
+        $response = $this->get($url);
+        $response->assertStatus(200);
+
+        $response->assertSeeText('2025/08');
+
+        Attendance::where('user_id', $user->id)
+            ->whereMonth('date', 8)
+            ->get()
+            ->each(function ($attendance) use ($response) {
+                $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('m/d(D)'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+                $response->assertSeeText($attendance->formatted_total_rest);
+                $response->assertSeeText($attendance->formatted_total_work);
+            });
+    }
+
+    public function test_can_navigate_to_attendance_detail(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/list');
+        $response->assertStatus(200);
+
+        $response->assertSee('/attendance/' . $attendance->id);
+
+        $detailResponse = $this->get('/attendance/' . $attendance->id);
+        $detailResponse->assertStatus(200);
+    }
 }
