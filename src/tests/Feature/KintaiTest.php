@@ -112,11 +112,10 @@ class KintaiTest extends TestCase
 
     public function test_login_validation_email(): void
     {
-        $response = $this->post('/register', [
+        User::create([
             'name' => '田中太郎',
             'email' => 'john@example.com',
             'password' => 'password',
-            'password_confirmation' => 'password',
         ]);
 
         $response = $this->post('/login', [
@@ -133,11 +132,10 @@ class KintaiTest extends TestCase
 
     public function test_login_validation_password(): void
     {
-        $response = $this->post('/register', [
+        User::create([
             'name' => '田中太郎',
             'email' => 'john@example.com',
             'password' => 'password',
-            'password_confirmation' => 'password',
         ]);
 
         $response = $this->post('/login', [
@@ -154,11 +152,10 @@ class KintaiTest extends TestCase
 
     public function test_login_validation_wrong(): void
     {
-        $response = $this->post('/register', [
+        User::create([
             'name' => '田中太郎',
             'email' => 'john@example.com',
             'password' => 'password',
-            'password_confirmation' => 'password',
         ]);
 
         $response = $this->post('/login', [
@@ -377,4 +374,174 @@ class KintaiTest extends TestCase
         $response->assertSee('07/27(日)');
         $response->assertSee('00:00');
     }
+
+    public function test_rest_start_button(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 27, 10, 0);
+        Carbon::setTestNow($fixedDate);
+        $user = User::factory()->create();
+        Attendance::create([
+            'user_id' => $user->id,
+            'date' => $fixedDate->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => null,
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSeeText('休憩入');
+        $response->assertSee('rest_start');
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_start',
+        ]);
+
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSee('休憩中');
+    }
+
+    public function test_can_many_rests(): void
+    {
+        $startRestTime = Carbon::create(2025, 7, 27, 10, 0);
+        Carbon::setTestNow($startRestTime);
+        $user = User::factory()->create();
+        Attendance::create([
+            'user_id' => $user->id,
+            'date' => $startRestTime->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => null,
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_start',
+        ]);
+
+        $endRestTime = Carbon::create(2025, 7, 27, 11, 0);
+        Carbon::setTestNow($endRestTime);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_end',
+        ]);
+
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSeeText('休憩入');
+        $response->assertSee('rest_start');
+    }
+
+    public function test_rest_end_button(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 27, 10, 0);
+        Carbon::setTestNow($fixedDate);
+        $user = User::factory()->create();
+        Attendance::create([
+            'user_id' => $user->id,
+            'date' => $fixedDate->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => null,
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_start',
+        ]);
+
+        $endRestTime = Carbon::create(2025, 7, 27, 11, 0);
+        Carbon::setTestNow($endRestTime);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSeeText('休憩戻');
+        $response->assertSee('rest_end');
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_end',
+        ]);
+
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSee('出勤中');
+    }
+
+    public function test_can_many_end_rests(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 27, 10, 0);
+        Carbon::setTestNow($fixedDate);
+        $user = User::factory()->create();
+        Attendance::create([
+            'user_id' => $user->id,
+            'date' => $fixedDate->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => null,
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_start',
+        ]);
+
+        $endRestTime = Carbon::create(2025, 7, 27, 11, 0);
+        Carbon::setTestNow($endRestTime);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_end',
+        ]);
+
+        $startRestTime = Carbon::create(2025, 7, 27, 12, 0);
+        Carbon::setTestNow($startRestTime);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_start',
+        ]);
+
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response->assertSeeText('休憩戻');
+        $response->assertSee('rest_end');
+    }
+
+    public function test_show_rest_times_on_index(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 27, 10, 0);
+        Carbon::setTestNow($fixedDate);
+        $user = User::factory()->create();
+        Attendance::create([
+            'user_id' => $user->id,
+            'date' => $fixedDate->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => null,
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_start',
+        ]);
+
+        $endRestTime = Carbon::create(2025, 7, 27, 11, 0);
+        Carbon::setTestNow($endRestTime);
+        $response = $this->get('/attendance');
+        $response->assertStatus(200);
+        $response = $this->post('/attendance/list', [
+            'action' => 'rest_end',
+        ]);
+
+        $response = $this->get('/attendance/list');
+        $response->assertStatus(200);
+        $response->assertSee('2025/07');
+        $response->assertSee('07/27(日)');
+        $response->assertSee('1:00');
+    }
+
+
 }
