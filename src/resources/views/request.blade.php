@@ -49,7 +49,7 @@
                 </td>
                 <td class="px-5">
                     @if (Auth::guard('admin')->check())
-                    <a href="{{ route('request.approve', $attendanceCorrectRequest) }}" class="text-decoration-none text-black">承認</a>
+                    <a href="{{ route('request.approve', $attendanceCorrectRequest) }}" class="text-decoration-none text-black">詳細</a>
                     @else
                     <a href="/attendance/{{ $attendanceCorrectRequest->attendance->id }}" class="text-decoration-none text-black">詳細</a>
                     @endif

@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Admin;
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Request as AttendanceRequest;
+use App\Models\RequestRest;
 use App\Models\RestTime;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -764,8 +766,342 @@ class KintaiTest extends TestCase
         $response->assertStatus(200);
 
         $response->assertSee('/attendance/' . $attendance->id);
+        $response->assertSeeText('詳細');
 
         $detailResponse = $this->get('/attendance/' . $attendance->id);
         $detailResponse->assertStatus(200);
+    }
+
+    public function test_show_login_user_name(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+        $response->assertSee('<td class="py-4p px-4p">' . $user->name . '</td>', false);
+    }
+
+    public function test_show_select_date(): void
+    {
+        Carbon::setLocale('ja');
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+        $response->assertSeeText(Carbon::parse($attendance->date)->format('Y年'));
+        $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('n月j日'));
+    }
+
+    public function test_show_clock_in_out(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+        $response->assertSee('name = clock_in', false);
+        $response->assertSeeText('09:00');
+        $response->assertSee('name = clock_out', false);
+        $response->assertSeeText('18:00');
+    }
+
+    public function test_show_rest_time(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        RestTime::factory()->create([
+            'attendance_id' => $attendance->id,
+            'start_time' => '12:00',
+            'end_time' => '13:00',
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+        $response->assertSee('name = rest[0][start_time]', false);
+        $response->assertSeeText('12:00');
+        $response->assertSee('name = rest[0][end_time]', false);
+        $response->assertSeeText('13:00');
+    }
+
+    public function test_validation_clock_in(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->post('/stamp_correction_request/list', [
+            'attendance_id' => $attendance->id,
+            'clock_in' => '12:00',
+            'clock_out' => '08:00',
+        ]);
+        $response->assertSessionHasErrors('clock_in');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '出勤時間が不適切な値です',
+            $errors->get('clock_in')[0]
+        );
+    }
+
+    public function test_validation_rest_start_time(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->post('/stamp_correction_request/list', [
+            'attendance_id' => $attendance->id,
+            'rest[0][start_time]' => '19:00',
+            'rest[0][end_time]' => '12:00',
+        ]);
+        $response->assertSessionHasErrors('rest.0.start_time');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '休憩時間が不適切な値です',
+            $errors->get('rest.0.start_time')[0]
+        );
+    }
+
+    public function test_validation_rest_end_time(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->post('/stamp_correction_request/list', [
+            'attendance_id' => $attendance->id,
+            'rest[0][start_time]' => '12:00',
+            'rest[0][end_time]' => '19:00',
+        ]);
+        $response->assertSessionHasErrors('rest.0.end_time');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '休憩時間もしくは退勤時間が不適切な値です',
+            $errors->get('rest.0.end_time')[0]
+        );
+    }
+
+    public function test_validation_reason(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->post('/stamp_correction_request/list', [
+            'attendance_id' => $attendance->id,
+            'reason' => '',
+        ]);
+        $response->assertSessionHasErrors('reason');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '備考を記入してください',
+            $errors->get('reason')[0]
+        );
+    }
+
+    public function test_request_success(): void
+    {
+        Carbon::setLocale('ja');
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->post('/stamp_correction_request/list', [
+            'user_id' => $user->id,
+            'attendance_id' => $attendance->id,
+            'clock_in' => '10:00',
+            'clock_out' => '19:00',
+            'rest[0][start_time]' => '13:00',
+            'rest[0][end_time]' => '14:00',
+            'reason' => 'test',
+        ]);
+
+        $attendanceCorrectRequest = AttendanceRequest::with('attendance', 'requestRests')->latest()->first();
+
+        $admin = Admin::factory()->create();
+        $this->actingAs($admin);
+
+        $response = $this->get(route('request.approve', ['id' => $attendanceCorrectRequest->id]));
+        $response->assertStatus(200);
+        $response->assertSeeText($user->name);
+        $response->assertSeeText(Carbon::parse($attendanceCorrectRequest->attendance->date)->format('Y年'));
+        $response->assertSeeText(Carbon::parse($attendanceCorrectRequest->attendance->date)->translatedFormat('n月j日'));
+        $response->assertSeeText(Carbon::parse($attendanceCorrectRequest->clock_in)->format('H:i'));
+        $response->assertSeeText(Carbon::parse($attendanceCorrectRequest->clock_out)->format('H:i'));
+        $response->assertSeeText(Carbon::parse($attendanceCorrectRequest->requestRests[0]->start_time)->format('H:i'));
+        $response->assertSeeText(Carbon::parse($attendanceCorrectRequest->requestRests[0]->end_time)->format('H:i'));
+        $response->assertSeeText($attendanceCorrectRequest->reason);
+
+        $response = $this->get('/stamp_correction_request/list?tab=pending');
+        $response->assertStatus(200);
+        $response->assertSeeText('承認待ち');
+        $response->assertSeeText($user->name);
+        $response->assertSeeText(Carbon::parse($attendanceCorrectRequest->attendance->date)->format('Y/m/d'));
+        $response->assertSeeText($attendanceCorrectRequest->reason);
+        $response->assertSeeText($attendanceCorrectRequest->created_at->format('Y/m/d'));
+    }
+
+    public function test_pending_request(): void
+    {
+        $user = User::factory()->create();
+        $attendances = collect();
+        for ($i = 0; $i < 2; $i++) {
+            $attendances->push(
+                Attendance::factory()->create([
+                    'user_id' => $user->id,
+                    'date' => now()->addDays($i)->format('Y-m-d'),
+                ])
+            );
+        }
+
+        $attendanceRequests = collect();
+        foreach ($attendances as $attendance) {
+            $attendanceRequests->push(
+                AttendanceRequest::factory()->create([
+                    'user_id' => $user->id,
+                    'attendance_id' => $attendance->id,
+                    'clock_in' => '10:00',
+                    'clock_out' => '19:00',
+                    'reason' => "テスト申請{$i}",
+                ])
+            );
+        }
+
+        $this->actingAs($user);
+        $response = $this->get('/stamp_correction_request/list?tab=pending');
+        $response->assertStatus(200);
+        foreach ($attendanceRequests as $attendanceRequest) {
+            $response->assertSeeText($user->name);
+            $response->assertSeeText(Carbon::parse($attendanceRequest->attendance->date)->format('Y/m/d'));
+            $response->assertSeeText($attendanceRequest->reason);
+        }
+    }
+
+    public function test_approved_request(): void
+    {
+        $user = User::factory()->create();
+        $attendances = collect();
+        for ($i = 0; $i < 2; $i++) {
+            $attendances->push(
+                Attendance::factory()->create([
+                    'user_id' => $user->id,
+                    'date' => now()->addDays($i)->format('Y-m-d'),
+                ])
+            );
+        }
+
+        $attendanceRequests = collect();
+        foreach ($attendances as $attendance) {
+            $attendanceRequests->push(
+                AttendanceRequest::factory()->create([
+                    'user_id' => $user->id,
+                    'attendance_id' => $attendance->id,
+                    'clock_in' => '10:00',
+                    'clock_out' => '19:00',
+                    'reason' => "テスト申請{$i}",
+                    'approved' => true,
+                ])
+            );
+        }
+
+        $this->actingAs($user);
+        $response = $this->get('/stamp_correction_request/list?tab=approved');
+        $response->assertStatus(200);
+        foreach ($attendanceRequests as $attendanceRequest) {
+            $response->assertSeeText($user->name);
+            $response->assertSeeText(Carbon::parse($attendanceRequest->attendance->date)->format('Y/m/d'));
+            $response->assertSeeText($attendanceRequest->reason);
+        }
+    }
+
+    public function test_navigate_to_attendance_detail_on_request_list(): void
+    {
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $attendanceCorrectRequest = AttendanceRequest::factory()->create([
+            'user_id' => $user->id,
+            'attendance_id' => $attendance->id,
+            'clock_in' => '10:00',
+            'clock_out' => '19:00',
+            'reason' => "テスト申請",
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get('/stamp_correction_request/list?tab=pending');
+        $response->assertStatus(200);
+
+        $response->assertSee('/attendance/' . $attendanceCorrectRequest->attendance->id);
+        $response->assertSeeText('詳細');
+
+        $response = $this->get('/attendance/' . $attendanceCorrectRequest->attendance->id);
+        $response->assertStatus(200);
     }
 }
