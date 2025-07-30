@@ -668,8 +668,8 @@ class KintaiTest extends TestCase
 
     public function test_show_previous_month_attendance(): void
     {
-        $now = Carbon::create(2025, 7, 27);
-        Carbon::setTestNow($now);
+        $startOfJuly = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($startOfJuly);
         Carbon::setLocale('ja');
 
         $user = User::factory()->create();
@@ -681,8 +681,6 @@ class KintaiTest extends TestCase
         )->create([
             'user_id' => $user->id,
         ]);
-
-        $startOfJuly = $now->copy()->startOfMonth();
 
         Attendance::factory()->count(5)->sequence(
             fn ($sequence) => ['date' => $startOfJuly->copy()->addDays($sequence->index)]
@@ -711,13 +709,11 @@ class KintaiTest extends TestCase
 
     public function test_show_next_month_attendance(): void
     {
-        $now = Carbon::create(2025, 7, 27);
-        Carbon::setTestNow($now);
+        $startOfJuly = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($startOfJuly);
         Carbon::setLocale('ja');
 
         $user = User::factory()->create();
-
-        $startOfJuly = $now->copy()->startOfMonth();
 
         Attendance::factory()->count(5)->sequence(
             fn ($sequence) => ['date' => $startOfJuly->copy()->addDays($sequence->index)]
@@ -725,7 +721,7 @@ class KintaiTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $startOfAugust = Carbon::create(2025, 8, 1);
+        $startOfAugust = $startOfJuly->copy()->addMonth()->startOfMonth();
 
         Attendance::factory()->count(5)->sequence(
             fn ($sequence) => ['date' => $startOfAugust->copy()->addDays($sequence->index)]
@@ -792,6 +788,8 @@ class KintaiTest extends TestCase
         $attendance = Attendance::factory()->create([
             'user_id' => $user->id,
             'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
         ]);
 
         $this->actingAs($user);
@@ -799,6 +797,8 @@ class KintaiTest extends TestCase
         $response->assertStatus(200);
         $response->assertSeeText(Carbon::parse($attendance->date)->format('Y年'));
         $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('n月j日'));
+        $response->assertSee('value="09:00"', false);
+        $response->assertSee('value="18:00"', false);
     }
 
     public function test_show_clock_in_out(): void
@@ -952,6 +952,11 @@ class KintaiTest extends TestCase
 
         $response = $this->post('/stamp_correction_request/list', [
             'attendance_id' => $attendance->id,
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+            'rest' => [
+                ['start_time' => '12:00', 'end_time' => '13:00']
+            ],
             'reason' => '',
         ]);
         $response->assertSessionHasErrors('reason');
@@ -1111,5 +1116,452 @@ class KintaiTest extends TestCase
 
         $response = $this->get('/attendance/' . $attendanceRequest->attendance->id);
         $response->assertStatus(200);
+    }
+
+    public function test_admin_show_attendance_list(): void
+    {
+        $users = User::factory()->count(5)->create();
+        $admin = Admin::factory()->create();
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        foreach ($users as $user) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $fixedDate->format('Y-m-d'),
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+            ]);
+        }
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/admin/attendance/list');
+        $response->assertStatus(200);
+
+        foreach ($users as $user) {
+            $attendance = Attendance::where('user_id', $user->id)
+                ->where('date', $fixedDate->format('Y-m-d'))
+                ->first();
+            $response->assertSeeText($user->name);
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($attendance->formatted_total_rest);
+            $response->assertSeeText($attendance->formatted_total_work);
+        }
+    }
+
+    public function test_admin_show_attendance_list_with_now_date(): void
+    {
+        $users = User::factory()->count(5)->create();
+        $admin = Admin::factory()->create();
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        foreach ($users as $user) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $fixedDate->format('Y-m-d'),
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+            ]);
+        }
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/admin/attendance/list');
+        $response->assertStatus(200);
+
+        $response->assertSeeText('2025/07/01');
+    }
+
+    public function test_admin_show_previous_day_attendance(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        $users = User::factory()->count(5)->create();
+        $admin = Admin::factory()->create();
+        $previousDate = $fixedDate->copy()->subDay();
+
+        foreach ($users as $user) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $previousDate->format('Y-m-d'),
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+            ]);
+        }
+
+        $this->actingAs($admin, 'admin');
+        $url = route('admin-index', ['year' => 2025, 'month' => 6, 'day' => 30]);
+        $response = $this->get($url);
+        $response->assertStatus(200);
+
+        $response->assertSeeText('2025/06/30');
+
+        foreach ($users as $user) {
+            $attendance = Attendance::where('user_id', $user->id)
+                ->where('date', $previousDate->format('Y-m-d'))
+                ->first();
+            $response->assertSeeText($user->name);
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($attendance->formatted_total_rest);
+            $response->assertSeeText($attendance->formatted_total_work);
+        }
+    }
+
+    public function test_admin_show_next_day_attendance(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        $users = User::factory()->count(5)->create();
+        $admin = Admin::factory()->create();
+        $nextDate = $fixedDate->copy()->addDay();
+
+        foreach ($users as $user) {
+            $attendance = Attendance::factory()->create([
+                'user_id' => $user->id,
+                'date' => $nextDate->format('Y-m-d'),
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+            ]);
+        }
+
+        $this->actingAs($admin, 'admin');
+        $url = route('admin-index', ['year' => 2025, 'month' => 7, 'day' => 2]);
+        $response = $this->get($url);
+        $response->assertStatus(200);
+
+        $response->assertSeeText('2025/07/02');
+
+        foreach ($users as $user) {
+            $attendance = Attendance::where('user_id', $user->id)
+                ->where('date', $nextDate->format('Y-m-d'))
+                ->first();
+            $response->assertSeeText($user->name);
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($attendance->formatted_total_rest);
+            $response->assertSeeText($attendance->formatted_total_work);
+        }
+    }
+
+    public function test_admin_show_select_date(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        $user = User::factory()->create();
+        $admin = Admin::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => $fixedDate->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+        $response->assertSeeText($user->name);
+        $response->assertSeeText(Carbon::parse($attendance->date)->format('Y年'));
+        $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('n月j日'));
+        $response->assertSee('value="09:00"', false);
+        $response->assertSee('value="18:00"', false);
+    }
+
+    public function test_admin_validation_clock_in(): void
+    {
+        $admin = Admin::factory()->create();
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->patch('/admin/attendance/list', [
+            'attendance_id' => $attendance->id,
+            'clock_in' => '12:00',
+            'clock_out' => '08:00',
+            'reason' => 'テスト申請',
+        ]);
+        $response->assertSessionHasErrors('clock_in');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '出勤時間もしくは退勤時間が不適切な値です',
+            $errors->get('clock_in')[0]
+        );
+    }
+
+    public function test_admin_validation_rest_start_time(): void
+    {
+        $admin = Admin::factory()->create();
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->patch('/admin/attendance/list', [
+            'attendance_id' => $attendance->id,
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+            'rest' => [
+                ['start_time' => '19:00', 'end_time' => '12:00']
+            ],
+            'reason' => 'テスト申請',
+        ]);
+
+        $response->assertSessionHasErrors('rest.0.start_time');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '休憩時間が不適切な値です',
+            $errors->get('rest.0.start_time')[0]
+        );
+    }
+
+    public function test_admin_validation_rest_end_time(): void
+    {
+        $admin = Admin::factory()->create();
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->patch('/admin/attendance/list', [
+            'attendance_id' => $attendance->id,
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+            'rest' => [
+                ['start_time' => '12:00', 'end_time' => '19:00']
+            ],
+            'reason' => 'テスト申請',
+        ]);
+        $response->assertSessionHasErrors('rest.0.end_time');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '休憩時間もしくは退勤時間が不適切な値です',
+            $errors->get('rest.0.end_time')[0]
+        );
+    }
+
+    public function test_admin_validation_reason(): void
+    {
+        $admin = Admin::factory()->create();
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/attendance/' . $attendance->id);
+        $response->assertStatus(200);
+
+        $response = $this->patch('/admin/attendance/list', [
+            'attendance_id' => $attendance->id,
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+            'rest' => [
+                ['start_time' => '12:00', 'end_time' => '13:00']
+            ],
+            'reason' => '',
+        ]);
+        $response->assertSessionHasErrors('reason');
+        $errors = $response->getSession()->get('errors');
+        $this->assertEquals(
+            '備考を記入してください',
+            $errors->get('reason')[0]
+        );
+    }
+
+    public function test_admin_show_staffs(): void
+    {
+        $admin = Admin::factory()->create();
+        $users = User::factory()->count(5)->create();
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/admin/staff/list');
+        $response->assertStatus(200);
+
+        foreach ($users as $user) {
+            $response->assertSeeText($user->name);
+            $response->assertSeeText($user->email);
+        }
+    }
+
+    public function test_show_select_staff_attendance_list(): void
+    {
+        $admin = Admin::factory()->create();
+        $user = User::factory()->create();
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        $attendances = Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $fixedDate->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+            'clock_in' => '09:00',
+            'clock_out' => '18:00',
+        ]);
+
+        foreach ($attendances as $attendance) {
+            RestTime::factory()->create([
+                'attendance_id' => $attendance->id,
+                'start_time' => '12:00',
+                'end_time' => '13:00',
+            ]);
+        }
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/admin/attendance/staff/' . $user->id);
+        $response->assertStatus(200);
+
+        Attendance::where('user_id', $user->id)->get()->each(function ($attendance) use ($response) {
+            $response->assertSeeText($attendance->user->name);
+            $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('m/d(D)'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+            $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+            $response->assertSeeText($attendance->formatted_total_rest);
+            $response->assertSeeText($attendance->formatted_total_work);
+        });
+    }
+
+    public function test_admin_show_previous_month_staff_attendance(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        $user = User::factory()->create();
+        $admin = Admin::factory()->create();
+
+        $startOfJune = Carbon::create(2025, 6, 1);
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfJune->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $startOfJuly = $fixedDate->copy()->startOfMonth();
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfJuly->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $url = route('staff-attendance.show', ['id' => $user->id, 'year' => 2025, 'month' => 6]);
+        $response = $this->get($url);
+        $response->assertStatus(200);
+
+        $response->assertSeeText('2025/06');
+
+        Attendance::where('user_id', $user->id)
+            ->whereMonth('date', 6)
+            ->get()
+            ->each(function ($attendance) use ($response) {
+                $response->assertSeeText($attendance->user->name);
+                $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('m/d(D)'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+                $response->assertSeeText($attendance->formatted_total_rest);
+                $response->assertSeeText($attendance->formatted_total_work);
+            });
+    }
+
+    public function test_admin_show_next_month_staff_attendance(): void
+    {
+        $fixedDate = Carbon::create(2025, 7, 1);
+        Carbon::setTestNow($fixedDate);
+        Carbon::setLocale('ja');
+
+        $user = User::factory()->create();
+        $admin = Admin::factory()->create();
+
+        $startOfJuly = Carbon::create(2025, 7, 1);
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfJuly->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $startOfAugust = $fixedDate->copy()->addMonth()->startOfMonth();
+
+        Attendance::factory()->count(5)->sequence(
+            fn ($sequence) => ['date' => $startOfAugust->copy()->addDays($sequence->index)]
+        )->create([
+            'user_id' => $user->id,
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $url = route('staff-attendance.show', ['id' => $user->id, 'year' => 2025, 'month' => 8]);
+        $response = $this->get($url);
+        $response->assertStatus(200);
+
+        $response->assertSeeText('2025/08');
+
+        Attendance::where('user_id', $user->id)
+            ->whereMonth('date', 8)
+            ->get()
+            ->each(function ($attendance) use ($response) {
+                $response->assertSeeText($attendance->user->name);
+                $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('m/d(D)'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_in)->format('H:i'));
+                $response->assertSeeText(Carbon::parse($attendance->clock_out)->format('H:i'));
+                $response->assertSeeText($attendance->formatted_total_rest);
+                $response->assertSeeText($attendance->formatted_total_work);
+            });
+    }
+
+    public function test_can_navigate_to_attendance_detail_on_staff_attendance(): void
+    {
+        $admin = Admin::factory()->create();
+        $user = User::factory()->create();
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'date' => now()->format('Y-m-d'),
+        ]);
+
+        $this->actingAs($admin, 'admin');
+        $response = $this->get('/admin/attendance/staff/' . $user->id);
+        $response->assertStatus(200);
+
+        $response->assertSee('/attendance/' . $attendance->id);
+        $response->assertSeeText('詳細');
+
+        $detailResponse = $this->get('/attendance/' . $attendance->id);
+        $detailResponse->assertStatus(200);
     }
 }
