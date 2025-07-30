@@ -47,7 +47,7 @@ class RequestRequest extends FormRequest
                         if ($startTime->lt($clockIn) || $startTime->gt($clockOut)) {
                             $validator->errors()->add("rest.$index.start_time", "休憩時間が不適切な値です");
                         } elseif ($endTime->gt($clockOut)) {
-                            $validator->errors()->add("rest.$index.end_time", "休憩時間が不適切な値です");
+                            $validator->errors()->add("rest.$index.end_time", "休憩時間もしくは退勤時間が不適切な値です");
                         } elseif ($startTime->gt($endTime)) {
                             $validator->errors()->add("rest.$index.start_time", "休憩時間が不適切な値です");
                         }

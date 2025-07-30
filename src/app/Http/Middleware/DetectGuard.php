@@ -19,11 +19,11 @@ class DetectGuard
     public function handle(Request $request)
     {
         if (Auth::guard('admin')->check()) {
-            return app(AdminController::class)->showRequests($request);
+            return response(app(AdminController::class)->showRequests($request));
         }
-    
+
         if (Auth::guard('web')->check()) {
-            return app(StaffController::class)->showRequests($request);
+            return response(app(StaffController::class)->showRequests($request));
         }
 
         return redirect('/login');

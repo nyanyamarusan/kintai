@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Attendance;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +18,14 @@ class RequestFactory extends Factory
      */
     public function definition(): array
     {
+        $start = Carbon::createFromTime(rand(7, 11), rand(0, 59));
+        $end = (clone $start)->addHours(rand(8, 10));
+
         return [
-            //
+            'attendance_id' => Attendance::factory(),
+            'clock_in' => $start->format('H:i'),
+            'clock_out' => $end->format('H:i'),
+            'reason' => $this->faker->sentence,
         ];
     }
 }

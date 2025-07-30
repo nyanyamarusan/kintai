@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Models\Attendance;
 use App\Models\RequestRest;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Request extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'attendance_id',
         'clock_in',
