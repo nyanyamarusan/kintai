@@ -66,9 +66,4 @@ class AuthController extends Controller
 
         return redirect('/attendance');
     }
-
-    public function email()
-    {
-        return view('auth.verify-email');
-    }
 }

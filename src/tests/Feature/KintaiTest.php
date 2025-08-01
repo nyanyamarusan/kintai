@@ -8,13 +8,34 @@ use App\Models\User;
 use App\Models\Request as AttendanceRequest;
 use App\Models\RestTime;
 use Carbon\Carbon;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
+use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
 use Tests\TestCase;
 
 class KintaiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->app->singleton(VerifyEmailViewResponse::class, function () {
+            return new class implements VerifyEmailViewResponse {
+                public function toResponse($request)
+                {
+                    return response()->view('auth.verify-email');
+                }
+            };
+        });
+    }
 
     public function test_register_validation_name(): void
     {
@@ -1774,5 +1795,60 @@ class KintaiTest extends TestCase
         $response->assertSeeText('17:00');
         $response->assertSeeText($attendance->fresh()->formatted_total_rest);
         $response->assertSeeText($attendance->fresh()->formatted_total_work);
+    }
+
+    public function test_user_receives_verification_email()
+    {
+        Notification::fake();
+
+        $this->post('/register', [
+            'name' => '田中太郎',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $user = User::where('email', 'test@example.com')->first();
+
+        Notification::assertSentTo($user, VerifyEmail::class);
+    }
+
+    public function test_show_verification_screen(): void
+    {
+        Http::fake([
+            'http://localhost:8025/' => Http::response('mailhog mock response', 200),
+        ]);
+        $user = User::factory()->unverified()->create();
+
+        $this->actingAs($user, 'web');
+        $response = $this->get('/email/verify');
+        $response->assertStatus(200);
+
+        $response->assertSeeText('認証はこちらから');
+        $response->assertSee('http://localhost:8025/');
+
+        $mailhogResponse = Http::get('http://localhost:8025/');
+        $this->assertEquals(200, $mailhogResponse->status());
+    }
+
+    public function test_user_is_redirected_to_attendance_after_verification(): void
+    {
+        Event::fake();
+        $user = User::factory()->unverified()->create();
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(60),
+            [
+                'id' => $user->id,
+                'hash' => sha1($user->email),
+            ]
+        );
+
+        $response = $this->actingAs($user)->get($verificationUrl);
+        $response->assertRedirect('/attendance');
+
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        Event::assertDispatched(Verified::class);
     }
 }
