@@ -4,6 +4,9 @@
 <div class="bg-f0eff2 inter m-h-100vh fw-bold">
     <div class="container pt-5p col-8">
         <h2 class="fw-bold content-title border-left pl-2p">勤怠詳細</h2>
+        @php
+            $latestRequest = $attendance->requests()->latest()->first();
+        @endphp
         @if (Auth::check() && !Auth::guard('admin')->check() && $attendance->is_pending_request)
         <table class="table rounded-10 mt-5p table-fixed border-E1">
             <tr class="table-border__td">
@@ -23,13 +26,13 @@
                 <th class="px-8p py-4p text-73 col-4">出勤・退勤</th>
                 <td class="py-4p px-4p">
                     <div class="w-56 d-flex justify-content-between align-items-center">
-                        <p class="m-0">{{ $attendance->request->formatted_clock_in }}</p>
+                        <p class="m-0">{{ $latestRequest->formatted_clock_in }}</p>
                         <span>~</span>
-                        <p class="m-0">{{ $attendance->request->formatted_clock_out }}</p>
+                        <p class="m-0">{{ $latestRequest->formatted_clock_out }}</p>
                     </div>
                 </td>
             </tr>
-            @forelse ($attendance->request->requestRests as $requestRest)
+            @forelse ($latestRequest->requestRests as $requestRest)
             <tr class="table-border__td">
                 <th class="px-8p py-4p text-73 col-4">休憩</th>
                 <td class="py-4p px-4p">
@@ -54,7 +57,7 @@
             @endforelse
             <tr>
                 <th class="px-8p py-4p text-73 col-4">備考</th>
-                <td class="py-4p px-4p">{{ $attendance->request->reason }}</td>
+                <td class="py-4p px-4p">{{ $latestRequest->reason }}</td>
             </tr>
         </table>
         <p class="text-1vw19 mt-2p text-end fw-extrabold text-FF0000">*承認待ちのため修正はできません。</p>

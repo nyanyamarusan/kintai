@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin;
 use App\Models\Attendance;
 use App\Models\User;
 use Carbon\Carbon;
@@ -15,6 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(TestUserSeeder::class);
+
         User::factory()->count(5)->create();
 
         Attendance::factory()->count(10)->make()->each(function ($attendance) {
@@ -50,7 +51,5 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         });
-
-        Admin::factory()->count(1)->create();
     }
 }

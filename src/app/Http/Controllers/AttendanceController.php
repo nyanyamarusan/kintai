@@ -13,12 +13,12 @@ class AttendanceController extends Controller
     public function show($id)
     {
         if (Auth::guard('admin')->check()) {
-            $attendance = Attendance::with('user', 'restTimes', 'request')
+            $attendance = Attendance::with('user', 'restTimes', 'requests')
                 ->findOrFail($id);
             $user = $attendance->user;
         } else {
             $user = Auth::user();
-            $attendance = Attendance::with('user', 'restTimes', 'request')
+            $attendance = Attendance::with('user', 'restTimes', 'requests')
                 ->where('user_id', $user->id)
                 ->findOrFail($id);
             $user = $attendance->user;

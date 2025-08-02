@@ -1,7 +1,6 @@
 docker-compose.override.yml
 /.idea
 /.vscode
-.git/
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/

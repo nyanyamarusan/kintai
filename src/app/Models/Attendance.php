@@ -39,9 +39,9 @@ class Attendance extends Model
         return $this->hasMany(RestTime::class);
     }
 
-    public function request()
+    public function requests()
     {
-        return $this->hasOne(Request::class)->latestOfMany();
+        return $this->hasMany(Request::class);
     }
 
     public function getFormattedDateAttribute()
@@ -151,6 +151,6 @@ class Attendance extends Model
 
     public function getIsPendingRequestAttribute()
     {
-        return $this->request !== null && $this->request->approved === false;
+        return optional($this->requests()->latest()->first())->approved === false;
     }
 }
