@@ -18,8 +18,7 @@ class Attendance extends Model
         'date',
         'clock_in',
         'clock_out',
-        'total_rest',
-        'total_work',
+        'reason',
     ];
 
     protected $appends = [
@@ -27,6 +26,8 @@ class Attendance extends Model
         'total_work_minutes',
         'formatted_clock_in',
         'formatted_clock_out',
+        'formatted_date',
+        'status',
     ];
 
     public function user()
