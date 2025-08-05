@@ -52,10 +52,10 @@ class AdminController extends Controller
 
         if ($tab === 'approved') {
             $requests = AttendanceRequest::where('approved', true)
-            ->with('attendance.user')->get();
+                ->with('attendance.user')->get();
         } else {
             $requests = AttendanceRequest::where('approved', false)
-            ->with('attendance.user')->get();
+                ->with('attendance.user')->get();
         }
 
         return view('request', compact('requests', 'tab'));
@@ -162,7 +162,7 @@ class AdminController extends Controller
 
         return Excel::download(
             new AttendanceExport($rows, $user),
-            'attendance_' . $user->name . '_' . $year . '_' . str_pad($month, 2, '0', STR_PAD_LEFT) . '.csv');
+            'attendance_'.$user->name.'_'.$year.'_'.str_pad($month, 2, '0', STR_PAD_LEFT).'.csv');
     }
 
     public function approveForm($id)

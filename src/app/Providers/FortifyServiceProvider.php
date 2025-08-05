@@ -22,6 +22,7 @@ class FortifyServiceProvider extends ServiceProvider
             if ($request->is('admin/login')) {
                 return Auth::guard('admin')->attempt($credentials);
             }
+
             return Auth::attempt($credentials);
         });
 
@@ -30,7 +31,7 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::loginView(function () {
-        $path = request()->path();
+            $path = request()->path();
             if ($path === 'admin/login') {
                 return view('auth.admin-login');
             } else {
@@ -41,8 +42,7 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             $email = (string) $request->email;
 
-            return Limit::perMinute(10)->by($email . $request->ip());
+            return Limit::perMinute(10)->by($email.$request->ip());
         });
     }
 }
-

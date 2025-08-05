@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Admin;
 use App\Models\Attendance;
-use App\Models\User;
 use App\Models\Request as AttendanceRequest;
 use App\Models\RestTime;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -28,7 +28,8 @@ class KintaiTest extends TestCase
         parent::setUp();
 
         $this->app->singleton(VerifyEmailViewResponse::class, function () {
-            return new class implements VerifyEmailViewResponse {
+            return new class implements VerifyEmailViewResponse
+            {
                 public function toResponse($request)
                 {
                     return response()->view('auth.verify-email');
@@ -781,10 +782,10 @@ class KintaiTest extends TestCase
         $response = $this->get('/attendance/list');
         $response->assertStatus(200);
 
-        $response->assertSee('/attendance/' . $attendance->id);
+        $response->assertSee('/attendance/'.$attendance->id);
         $response->assertSeeText('詳細');
 
-        $detailResponse = $this->get('/attendance/' . $attendance->id);
+        $detailResponse = $this->get('/attendance/'.$attendance->id);
         $detailResponse->assertStatus(200);
     }
 
@@ -797,9 +798,9 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
-        $response->assertSee('<td class="py-4p px-4p">' . $user->name . '</td>', false);
+        $response->assertSee('<td class="py-4p px-4p">'.$user->name.'</td>', false);
     }
 
     public function test_show_select_date(): void
@@ -814,7 +815,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
         $response->assertSeeText(Carbon::parse($attendance->date)->format('Y年'));
         $response->assertSeeText(Carbon::parse($attendance->date)->translatedFormat('n月j日'));
@@ -833,7 +834,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
         $response->assertSee('name="clock_in"', false);
         $response->assertSee('value="09:00"', false);
@@ -858,7 +859,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
         $response->assertSee('name="rest[0][start_time]"', false);
         $response->assertSee('value="12:00"', false);
@@ -877,7 +878,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->post('/stamp_correction_request/list', [
@@ -905,7 +906,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->post('/stamp_correction_request/list', [
@@ -913,7 +914,7 @@ class KintaiTest extends TestCase
             'clock_in' => '09:00',
             'clock_out' => '18:00',
             'rest' => [
-                ['start_time' => '19:00', 'end_time' => '12:00']
+                ['start_time' => '19:00', 'end_time' => '12:00'],
             ],
             'reason' => 'テスト申請',
         ]);
@@ -937,7 +938,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->post('/stamp_correction_request/list', [
@@ -945,7 +946,7 @@ class KintaiTest extends TestCase
             'clock_in' => '09:00',
             'clock_out' => '18:00',
             'rest' => [
-                ['start_time' => '12:00', 'end_time' => '19:00']
+                ['start_time' => '12:00', 'end_time' => '19:00'],
             ],
             'reason' => 'テスト申請',
         ]);
@@ -968,7 +969,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->post('/stamp_correction_request/list', [
@@ -976,7 +977,7 @@ class KintaiTest extends TestCase
             'clock_in' => '09:00',
             'clock_out' => '18:00',
             'rest' => [
-                ['start_time' => '12:00', 'end_time' => '13:00']
+                ['start_time' => '12:00', 'end_time' => '13:00'],
             ],
             'reason' => '',
         ]);
@@ -1000,7 +1001,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->post('/stamp_correction_request/list', [
@@ -1008,7 +1009,7 @@ class KintaiTest extends TestCase
             'clock_in' => '10:00',
             'clock_out' => '19:00',
             'rest' => [
-                ['start_time' => '12:00', 'end_time' => '13:00']
+                ['start_time' => '12:00', 'end_time' => '13:00'],
             ],
             'reason' => 'test',
         ]);
@@ -1125,17 +1126,17 @@ class KintaiTest extends TestCase
             'attendance_id' => $attendance->id,
             'clock_in' => '10:00',
             'clock_out' => '19:00',
-            'reason' => "テスト申請",
+            'reason' => 'テスト申請',
         ]);
 
         $this->actingAs($user);
         $response = $this->get('/stamp_correction_request/list?tab=pending');
         $response->assertStatus(200);
 
-        $response->assertSee('/attendance/' . $attendanceRequest->attendance->id);
+        $response->assertSee('/attendance/'.$attendanceRequest->attendance->id);
         $response->assertSeeText('詳細');
 
-        $response = $this->get('/attendance/' . $attendanceRequest->attendance->id);
+        $response = $this->get('/attendance/'.$attendanceRequest->attendance->id);
         $response->assertStatus(200);
     }
 
@@ -1288,7 +1289,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($admin, 'admin');
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
         $response->assertSeeText($user->name);
         $response->assertSeeText(Carbon::parse($attendance->date)->format('Y年'));
@@ -1309,7 +1310,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($admin, 'admin');
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->patch('/admin/attendance/list', [
@@ -1338,7 +1339,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($admin, 'admin');
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->patch('/admin/attendance/list', [
@@ -1346,7 +1347,7 @@ class KintaiTest extends TestCase
             'clock_in' => '09:00',
             'clock_out' => '18:00',
             'rest' => [
-                ['start_time' => '19:00', 'end_time' => '12:00']
+                ['start_time' => '19:00', 'end_time' => '12:00'],
             ],
             'reason' => 'テスト申請',
         ]);
@@ -1371,7 +1372,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($admin, 'admin');
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->patch('/admin/attendance/list', [
@@ -1379,7 +1380,7 @@ class KintaiTest extends TestCase
             'clock_in' => '09:00',
             'clock_out' => '18:00',
             'rest' => [
-                ['start_time' => '12:00', 'end_time' => '19:00']
+                ['start_time' => '12:00', 'end_time' => '19:00'],
             ],
             'reason' => 'テスト申請',
         ]);
@@ -1403,7 +1404,7 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($admin, 'admin');
-        $response = $this->get('/attendance/' . $attendance->id);
+        $response = $this->get('/attendance/'.$attendance->id);
         $response->assertStatus(200);
 
         $response = $this->patch('/admin/attendance/list', [
@@ -1411,7 +1412,7 @@ class KintaiTest extends TestCase
             'clock_in' => '09:00',
             'clock_out' => '18:00',
             'rest' => [
-                ['start_time' => '12:00', 'end_time' => '13:00']
+                ['start_time' => '12:00', 'end_time' => '13:00'],
             ],
             'reason' => '',
         ]);
@@ -1463,7 +1464,7 @@ class KintaiTest extends TestCase
         }
 
         $this->actingAs($admin, 'admin');
-        $response = $this->get('/admin/attendance/staff/' . $user->id);
+        $response = $this->get('/admin/attendance/staff/'.$user->id);
         $response->assertStatus(200);
 
         Attendance::where('user_id', $user->id)->get()->each(function ($attendance) use ($response) {
@@ -1572,13 +1573,13 @@ class KintaiTest extends TestCase
         ]);
 
         $this->actingAs($admin, 'admin');
-        $response = $this->get('/admin/attendance/staff/' . $user->id);
+        $response = $this->get('/admin/attendance/staff/'.$user->id);
         $response->assertStatus(200);
 
-        $response->assertSee('/attendance/' . $attendance->id);
+        $response->assertSee('/attendance/'.$attendance->id);
         $response->assertSeeText('詳細');
 
-        $detailResponse = $this->get('/attendance/' . $attendance->id);
+        $detailResponse = $this->get('/attendance/'.$attendance->id);
         $detailResponse->assertStatus(200);
     }
 

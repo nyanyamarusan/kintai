@@ -38,7 +38,7 @@
             @endphp
             <tr class="table-border__td">
                 <td class="px-5 text-73">
-                    {{ $day->formatted_date }}
+                    {{ $day->format('m/d') }}({{ ['日','月','火','水','木','金','土'][$day->dayOfWeek] }})
                 </td>
                 <td class="text-center text-73">
                     {{ $attendance?->formatted_clock_in ?? '' }}

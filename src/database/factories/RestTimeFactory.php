@@ -16,7 +16,6 @@ class RestTimeFactory extends Factory
      *
      * @return array<string, mixed>
      */
-
     protected $model = RestTime::class;
 
     public function definition(): array

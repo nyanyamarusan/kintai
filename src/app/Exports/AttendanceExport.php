@@ -10,9 +10,10 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class AttendanceExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     protected $attendances;
+
     protected $user;
 
     public function __construct($attendances, $user)

@@ -17,7 +17,6 @@ class AttendanceFactory extends Factory
      *
      * @return array<string, mixed>
      */
-
     protected $model = Attendance::class;
 
     public function definition(): array

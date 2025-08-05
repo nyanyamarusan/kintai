@@ -36,9 +36,7 @@ Route::middleware('auth:admin')->group(function () {
         ->name('request.approve.patch');
 });
 
-Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', function () {
-
-});
+Route::middleware(['detect.guard'])->get('/stamp_correction_request/list', function () {});
 
 Route::middleware('shared.access')->group(function () {
     Route::get('/attendance/{id}', [AttendanceController::class, 'show']);

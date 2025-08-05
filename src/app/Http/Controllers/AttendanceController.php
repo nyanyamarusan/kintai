@@ -43,7 +43,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::firstOrCreate(
             [
                 'user_id' => $user->id,
-                'date' => $parsedDate
+                'date' => $parsedDate,
             ],
             [
                 'clock_in' => null,
@@ -52,6 +52,6 @@ class AttendanceController extends Controller
             ]
         );
 
-        return redirect('/attendance/' . $attendance->id);
+        return redirect('/attendance/'.$attendance->id);
     }
 }

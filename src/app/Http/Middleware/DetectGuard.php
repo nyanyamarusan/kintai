@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StaffController;
-use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

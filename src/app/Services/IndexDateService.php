@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use Carbon\Carbon;
@@ -15,6 +16,7 @@ class IndexDateService
         for ($date = $startOfMonth->copy(); $date <= $endOfMonth; $date->addDay()) {
             $days->push($date->copy());
         }
+
         return $days;
     }
 

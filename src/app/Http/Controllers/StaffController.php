@@ -18,6 +18,7 @@ class StaffController extends Controller
         $user = Auth::user();
         $today = now()->toDateString();
         $attendance = Attendance::where('user_id', $user->id)->whereDate('date', $today)->first();
+        
         return view('attendance', compact('user', 'attendance'));
     }
 
