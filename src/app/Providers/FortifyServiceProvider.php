@@ -20,10 +20,18 @@ class FortifyServiceProvider extends ServiceProvider
             $credentials = $request->only('email', 'password');
 
             if ($request->is('admin/login')) {
-                return Auth::guard('admin')->attempt($credentials);
+                Auth::guard('admin')->logout();
+                if (Auth::guard('admin')->attempt($credentials)) {
+                    return Auth::guard('admin')->user();
+                }
+            } else {
+                Auth::guard('web')->logout();
+                if (Auth::guard('web')->attempt($credentials)) {
+                    return Auth::guard('web')->user();
+                }
             }
 
-            return Auth::attempt($credentials);
+            return null;
         });
 
         Fortify::registerView(function () {
@@ -31,18 +39,20 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::loginView(function () {
-            $path = request()->path();
-            if ($path === 'admin/login') {
+            if (request()->is('admin/login')) {
                 return view('auth.admin-login');
-            } else {
-                return view('auth.login');
             }
+            return view('auth.login');
         });
 
         RateLimiter::for('login', function (Request $request) {
-            $email = (string) $request->email;
+            if ($request->is('admin/login')) {
+                $email = (string) $request->email;
+                return Limit::perMinute(5)->by('admin|'.$email.'|'.$request->ip());
+            }
 
-            return Limit::perMinute(10)->by($email.$request->ip());
+            $email = (string) $request->email;
+            return Limit::perMinute(10)->by('user|'.$email.'|'.$request->ip());
         });
     }
 }

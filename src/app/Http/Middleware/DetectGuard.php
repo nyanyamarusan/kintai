@@ -21,6 +21,12 @@ class DetectGuard
         }
 
         if (Auth::guard('web')->check()) {
+            $user = Auth::guard('web')->user();
+
+            if (!$user->hasVerifiedEmail()) {
+                return redirect('/email/verify');
+            }
+
             return response(app(StaffController::class)->showRequests($request));
         }
 

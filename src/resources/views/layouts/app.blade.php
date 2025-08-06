@@ -31,9 +31,9 @@
             @endif
             </div>
             @if (!request()->is('register') && !request()->is('login') && !request()->is('email/verify') && !request()->is('admin/login'))
-            <nav class="navbar col-4">
+            <nav class="navbar col-6">
                 <div class="container">
-                    <ul class="navbar-nav flex-row align-items-center justify-content-between w-100 text">
+                    <ul class="navbar-nav flex-row align-items-center justify-content-end w-100 text gap-5">
                         @if (Auth::guard('admin')->check())
                         <li class="nav-item">
                             <a href="/admin/attendance/list" class="nav-link text-decoration-none text-white">勤怠一覧</a>

@@ -27,8 +27,19 @@ class AuthController extends Controller
         return redirect('/email/verify');
     }
 
+    public function loginView()
+    {
+        return view('auth.login');
+    }
+
+    public function adminLoginView()
+    {
+        return view('auth.admin-login');
+    }
+
     public function login(LoginRequest $request)
     {
+        Auth::guard('admin')->logout();
         $request->authenticate();
 
         return redirect('/attendance');
@@ -36,6 +47,7 @@ class AuthController extends Controller
 
     public function adminLogin(AdminLoginRequest $request)
     {
+        Auth::guard('web')->logout();
         $request->authenticate();
 
         return redirect('/admin/attendance/list');
@@ -43,13 +55,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $redirect = '/login';
-
         if (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
             $redirect = '/admin/login';
         } elseif (Auth::check()) {
             Auth::logout();
+            $redirect = '/login';
         }
 
         if ($request->hasSession()) {

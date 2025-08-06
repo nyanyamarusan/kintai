@@ -31,7 +31,7 @@ class LoginRequest extends FormRequest
 
     public function authenticate()
     {
-        if (!Auth::attempt($this->only('email', 'password'))) {
+        if (!Auth::guard('web')->attempt($this->only('email', 'password'))) {
             throw ValidationException::withMessages([
                 'email' => 'ログイン情報が登録されていません',
             ]);

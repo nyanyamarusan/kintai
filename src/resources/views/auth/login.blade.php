@@ -3,7 +3,7 @@
 @section('content')
 <div class="container inter text fw-bold">
     <h2 class="text-center form-title pt-8p fw-bold">ログイン</h2>
-    <form action="/admin/login" class="w-50 mx-auto" method="post">
+    <form action="/login" class="w-50 mx-auto" method="post">
         @csrf
         <div class="mt-10p">
             <label for="email" class="form-label">メールアドレス</label>
