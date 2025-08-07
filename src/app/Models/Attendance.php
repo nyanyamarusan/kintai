@@ -24,9 +24,12 @@ class Attendance extends Model
     protected $appends = [
         'total_rest_minutes',
         'total_work_minutes',
+        'formatted_total_rest',
+        'formatted_total_work',
         'formatted_clock_in',
         'formatted_clock_out',
         'status',
+        'is_pending_request',
     ];
 
     public function user()
@@ -115,7 +118,7 @@ class Attendance extends Model
     {
         $minutes = $this->total_rest_minutes;
 
-        return $minutes ? $this->minutesToTime($minutes) : '';
+        return $minutes === null ? '' : $this->minutesToTime($minutes);
     }
 
     protected function minutesToTime($minutes)
@@ -130,7 +133,7 @@ class Attendance extends Model
     {
         $minutes = $this->total_work_minutes;
 
-        return $minutes ? $this->minutesToTime($minutes) : '';
+        return $minutes === null ? '' : $this->minutesToTime($minutes);
     }
 
     public function getFormattedClockInAttribute()

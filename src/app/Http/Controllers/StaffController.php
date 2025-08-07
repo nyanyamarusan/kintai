@@ -45,7 +45,7 @@ class StaffController extends Controller
 
             case 'rest_start':
                 if ($attendance) {
-                    $attendance->restTimes()->updateOrCreate([
+                    $attendance->restTimes()->create([
                         'start_time' => now()->format('H:i'),
                     ]);
                 }
