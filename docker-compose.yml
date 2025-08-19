@@ -13,6 +13,10 @@ services:
     build: ./docker/php
     volumes:
       - ./src:/var/www/
+    command: >
+      sh -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache &&
+            chmod -R 775 /var/www/storage /var/www/bootstrap/cache &&
+            php-fpm"
 
   mysql:
     image: mysql:8.0.41

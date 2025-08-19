@@ -147,7 +147,7 @@
                 <tr>
                     <th class="px-8p py-4p text-73 col-4">備考</th>
                     <td>
-                    <textarea class="form-control rounded-1 w-60 fw-bold resize-none" id="reason" name="reason"></textarea>
+                    <textarea class="form-control rounded-1 w-60 fw-bold resize-none" id="reason" name="reason">{{ old('reason', $attendance->reason) }}</textarea>
                     @error('reason')
                         <p class="text-danger mt-2p">{{ $message }}</p>
                     @enderror
